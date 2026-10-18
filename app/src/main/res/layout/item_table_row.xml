@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="14dp"
+    android:paddingTop="3dp"
+    android:paddingEnd="14dp"
+    android:paddingBottom="3dp">
+
+    <LinearLayout
+        android:id="@+id/row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_row"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="9dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="9dp">
+
+        <View
+            android:id="@+id/bar"
+            android:layout_width="3dp"
+            android:layout_height="22dp"
+            android:background="@color/accent" />
+
+        <TextView
+            android:id="@+id/pos"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <ImageView
+            android:id="@+id/crest"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/team"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/played"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/goals"
+            android:layout_width="62dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/pts"
+            android:layout_width="38dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textColor="@color/text"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

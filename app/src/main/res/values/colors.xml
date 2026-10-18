@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Deep navy with electric-blue accents; orange for "live". -->
+<resources>
+    <color name="bg">#060A1F</color>
+    <color name="surface">#0F1A4A</color>
+    <color name="surface_dark">#0A1236</color>
+    <color name="surface_live">#14163F</color>
+    <color name="stroke">#1E2E70</color>
+    <color name="divider">#121B4A</color>
+    <color name="accent">#4F7DFF</color>
+    <color name="on_accent">#FFFFFF</color>
+    <color name="pill_blue_start">#1B3FE0</color>
+    <color name="pill_blue_end">#2F6BFF</color>
+    <color name="live">#FF9A1F</color>
+    <color name="text">#F4F6FF</color>
+    <color name="muted">#8A93C0</color>
+</resources>

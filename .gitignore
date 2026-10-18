@@ -1,0 +1,10 @@
+*.iml
+.gradle
+build/
+local.properties
+.idea
+.vscode
+dist/
+.wrangler/
+node_modules/
+desktop/bin/

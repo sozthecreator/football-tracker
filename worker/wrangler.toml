@@ -1,0 +1,4 @@
+name = "football-tracker-proxy"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+preview_urls = false

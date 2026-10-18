@@ -1,0 +1,38 @@
+name: Windows installer
+
+# Runs when a release tag (v1.2.0 ...) is pushed: builds the Windows .msi (bundled Java) and attaches it to that GitHub Release.
+# Needs a repository variable WORKER_URL = the deployed Cloudflare Worker URL (see worker/README.md).
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build app jar (score-server URL baked in)
+        shell: bash
+        run: ./gradlew -PdesktopOnly -PworkerUrl="${{ vars.WORKER_URL }}" :desktop:installDist
+      - name: Package .msi
+        shell: bash
+        run: |
+          VERSION=$(grep '^appVersion=' gradle.properties | cut -d= -f2)
+          jpackage --type msi --name "Football Tracker" --app-version "$VERSION" --vendor "Football Tracker" \
+            --description "Live football scores, goal sounds and notifications" \
+            --input desktop/build/install/football-tracker/lib --main-jar desktop.jar \
+            --main-class eu.devsrv.samapp.desktop.Main --icon desktop/packaging/icon.ico \
+            --add-modules java.desktop,java.net.http,java.xml,java.prefs,java.logging,jdk.crypto.ec \
+            --win-menu --win-shortcut --win-dir-chooser --dest dist
+          mv "dist/Football Tracker-$VERSION.msi" "dist/football-tracker-$VERSION.msi"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.msi
