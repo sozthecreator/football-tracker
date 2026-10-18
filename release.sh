@@ -12,8 +12,8 @@ NOTES="${1:-Version $VERSION}"
 grep -q '^workerUrl=' local.properties || { echo "workerUrl missing in local.properties"; exit 1; }
 
 rm -rf dist && mkdir dist
-./gradlew -q -PfootballDataKey= assembleDiag
-cp app/build/outputs/apk/diag/app-diag.apk dist/football-tracker.apk
+./gradlew -q -PfootballDataKey= assembleDebug
+cp app/build/outputs/apk/debug/app-debug.apk dist/football-tracker.apk
 if unzip -p dist/football-tracker.apk 'classes*.dex' | grep -aq "$(grep '^footballDataKey=' local.properties | cut -d= -f2-)"; then
   echo "refusing to publish: the API key is inside the APK"; exit 1
 fi

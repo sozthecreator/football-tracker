@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
                 Sounds.boo(app);
             }, 12000);
         });
-        if (getPackageName().endsWith(".diag")) findViewById(R.id.test).setOnLongClickListener(v -> {
+        findViewById(R.id.test).setOnLongClickListener(v -> { // hold Test: debug menu
             showLog();
             return true;
         });
@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
         selectTab(!Football.favourites(this).isEmpty() ? TAB_MINE : TAB_LEAGUES);
     }
 
-    /** Diag build only: dialog with an "Events" tab (event log, newest last), a "Data" tab (feed source and match data) and a "Refresh" tab (how often and how fast the feed is polled). */
+    /** Debug menu (hold Test): dialog with an "Events" tab (event log, newest last), a "Data" tab (feed source and match data) and a "Refresh" tab (how often and how fast the feed is polled). */
     private void showLog() {
         TextView t = new TextView(this);
         t.setTextIsSelectable(true);

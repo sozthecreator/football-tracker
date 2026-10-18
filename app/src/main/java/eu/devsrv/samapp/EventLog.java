@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/** Plain-text event log in the app's files dir, shared by the UI and the service. Shown by long-pressing Test in the diag build. */
+/** Plain-text event log in the app's files dir, shared by the UI and the service. Shown by long-pressing Test. */
 final class EventLog {
     private static final long MAX_BYTES = 100_000;
 

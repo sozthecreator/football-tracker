@@ -30,12 +30,4 @@ android {
         buildConfig = true
     }
 
-    buildTypes {
-        // Side-by-side install (own app id) with the long-press-Test event log. Build: ./gradlew assembleDiag
-        create("diag") {
-            initWith(getByName("debug"))
-            applicationIdSuffix = ".diag"
-            manifestPlaceholders["appLabel"] = "Football Tracker DIAG"
-        }
-    }
 }

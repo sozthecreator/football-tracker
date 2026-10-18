@@ -47,7 +47,7 @@ import eu.devsrv.samapp.desktop.Ui.Card;
 import eu.devsrv.samapp.desktop.Ui.Grid;
 import eu.devsrv.samapp.desktop.Ui.Pill;
 
-/** Desktop (Linux/Windows) build of the DIAG app: same tabs, goal sounds, notifications and debug menu. */
+/** Desktop (Linux/Windows) version of the app: same tabs, goal sounds, notifications and debug menu. */
 public final class Main {
     private static final int LEAGUES = 0, MINE = 1, FOLLOWING = 2, TABLE = 3;
     private static final String[] TITLES = {"Leagues", "My teams", "Following", "Table"};
