@@ -107,7 +107,6 @@ public class MainActivity extends Activity {
             return true;
         });
         requestNotificationPermission();
-        Updates.check(this, false);
 
         selectTab(!Football.favourites(this).isEmpty() ? TAB_MINE : TAB_LEAGUES);
     }
@@ -240,6 +239,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        Updates.check(this, false); // throttled to once per 6 hours
         running = true;
         handler.post(poll);
     }

@@ -84,7 +84,8 @@ final class Updates {
 
     private static void install(Activity a, String apkUrl) {
         if (!a.getPackageManager().canRequestPackageInstalls()) { // one-off "install unknown apps" switch for this app
-            Toast.makeText(a, "Allow installing from this app, then tap Update again", Toast.LENGTH_LONG).show();
+            a.getSharedPreferences("updates", Context.MODE_PRIVATE).edit().remove("last").apply(); // so coming back from Settings asks again
+            Toast.makeText(a, "Switch on 'Allow from this source', then come back and tap Update", Toast.LENGTH_LONG).show();
             a.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + a.getPackageName())));
             return;
         }
