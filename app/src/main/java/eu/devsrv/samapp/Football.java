@@ -140,7 +140,7 @@ final class Football {
             Row r = new Row();
             r.pos = t.getInt("position");
             r.team = teamName(team);
-            r.crest = smallLogo(team.isNull("crest") ? "" : team.optString("crest"));
+            r.crest = logo(team, code);
             r.played = t.getInt("playedGames");
             r.gf = t.getInt("goalsFor");
             r.ga = t.getInt("goalsAgainst");
@@ -173,6 +173,13 @@ final class Football {
     static String url(String competitions, long from, long to) {
         return base() + "/matches?dateFrom=" + dash(from) + "&dateTo=" + dash(to)
                 + (competitions == null ? "" : "&competitions=" + competitions);
+    }
+
+    /** Badge URL. football-data's own image host is unreliable, so with a score server the badge comes from it (matched by team name). */
+    private static String logo(JSONObject team, String comp) {
+        if (BuildConfig.WORKER_URL.isEmpty()) return smallLogo(team.isNull("crest") ? "" : team.optString("crest"));
+        return BuildConfig.WORKER_URL + "/logo?name=" + android.net.Uri.encode(team.isNull("name") ? "" : team.optString("name"))
+                + "&short=" + android.net.Uri.encode(teamName(team)) + "&comp=" + android.net.Uri.encode(comp);
     }
 
     private static String teamName(JSONObject t) {
@@ -243,8 +250,8 @@ final class Football {
             JSONObject ft = e.getJSONObject("score").getJSONObject("fullTime"); // current score while live
             if (!ft.isNull("home")) m.hg = String.valueOf(ft.getInt("home"));
             if (!ft.isNull("away")) m.ag = String.valueOf(ft.getInt("away"));
-            m.homeLogo = smallLogo(h.isNull("crest") ? "" : h.optString("crest"));
-            m.awayLogo = smallLogo(a.isNull("crest") ? "" : a.optString("crest"));
+            m.homeLogo = logo(h, m.league);
+            m.awayLogo = logo(a, m.league);
             out.add(m);
         }
         return out;

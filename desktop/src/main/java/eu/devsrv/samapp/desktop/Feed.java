@@ -167,8 +167,8 @@ final class Feed {
             Map<String, Object> ft = Json.obj(Json.obj(e.get("score")).get("fullTime")); // current score while live
             if (ft.get("home") instanceof Double) m.hg = String.valueOf(((Double) ft.get("home")).intValue());
             if (ft.get("away") instanceof Double) m.ag = String.valueOf(((Double) ft.get("away")).intValue());
-            m.homeLogo = logo(Json.str(h, "crest"));
-            m.awayLogo = logo(Json.str(a, "crest"));
+            m.homeLogo = logo(h, m.league);
+            m.awayLogo = logo(a, m.league);
             out.add(m);
         }
         return out;
@@ -184,7 +184,7 @@ final class Feed {
             Row r = new Row();
             r.pos = ((Double) t.get("position")).intValue();
             r.team = teamName(team);
-            r.crest = logo(Json.str(team, "crest"));
+            r.crest = logo(team, code);
             r.played = ((Double) t.get("playedGames")).intValue();
             r.gf = ((Double) t.get("goalsFor")).intValue();
             r.ga = ((Double) t.get("goalsAgainst")).intValue();
@@ -203,9 +203,14 @@ final class Feed {
         return DateTimeFormatter.ofPattern("HH:mm").format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(when), ZoneId.systemDefault()));
     }
 
-    /** Java's ImageIO can't read the SVG crests, so a proxy turns those into PNG. */
-    static String logo(String url) {
-        return url.endsWith(".svg") ? "https://wsrv.nl/?url=" + url + "&w=96&h=96&output=png" : url;
+    /** Badge URL. football-data's own image host is unreliable, so with a score server the badge comes from it (matched by team name). */
+    static String logo(Map<String, Object> team, String comp) {
+        if (PROXY != null) {
+            return PROXY + "/logo?name=" + URLEncoder.encode(Json.str(team, "name"), StandardCharsets.UTF_8)
+                    + "&short=" + URLEncoder.encode(teamName(team), StandardCharsets.UTF_8) + "&comp=" + URLEncoder.encode(comp, StandardCharsets.UTF_8);
+        }
+        String url = Json.str(team, "crest");
+        return url.endsWith(".svg") ? "https://wsrv.nl/?url=" + url + "&w=96&h=96&output=png" : url; // ImageIO can't read SVG
     }
 
     static String leagueName(String code) {
