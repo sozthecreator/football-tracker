@@ -25,7 +25,7 @@ import java.util.Scanner;
 /** Checks GitHub Releases for a newer version, asks the user, then downloads and installs the APK. */
 final class Updates {
     private static final String LATEST = "https://api.github.com/repos/kiaroa/football-tracker/releases/latest";
-    private static final long EVERY_MS = 6 * 3_600_000L;
+    private static final long EVERY_MS = 15 * 60_000L;
     private static final String ACTION = "eu.devsrv.samapp.INSTALL_STATUS";
 
     /** {@code manual}: ignore the 6-hour throttle and say "up to date" when there's nothing new. */

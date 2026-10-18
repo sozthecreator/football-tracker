@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(this).setTitle("Debug").setView(box)
                 .setPositiveButton("Close", null)
                 .setNegativeButton("Clear log", (d, w) -> EventLog.clear(this))
-                .setNeutralButton("Refresh", (d, w) -> showLog())
+                .setNeutralButton("Check update", (d, w) -> Updates.check(this, true))
                 .show();
     }
 
@@ -239,7 +239,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Updates.check(this, false); // throttled to once per 6 hours
+        Updates.check(this, false); // throttled to once per 15 minutes
         running = true;
         handler.post(poll);
     }
