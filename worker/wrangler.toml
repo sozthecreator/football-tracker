@@ -2,3 +2,8 @@ name = "football-tracker-proxy"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 preview_urls = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "football-tracker"
+database_id = "18f06598-1b79-4e33-9c61-31367e2559ec"

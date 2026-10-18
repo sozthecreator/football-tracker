@@ -39,9 +39,26 @@ import javax.swing.SwingUtilities;
 
 /** Palette and the few custom-painted widgets (rounded cards, pills, the hexagon score box, crests). */
 final class Ui {
-    static final Color BG = new Color(0x060A1F), SURFACE = new Color(0x0F1A4A), SURFACE_DARK = new Color(0x0A1236), STROKE = new Color(0x1E2E70),
-            ACCENT = new Color(0x4F7DFF), LIVE = new Color(0xFF9A1F), TEXT = new Color(0xF4F6FF), MUTED = new Color(0x8A93C0),
-            PILL_A = new Color(0x1B3FE0), PILL_B = new Color(0x2F6BFF), ROW = new Color(0x0A1236);
+    static Color BG, SURFACE, SURFACE_DARK, STROKE, ACCENT, LIVE, TEXT, MUTED, PILL_A, PILL_B, ROW, HEX_FILL, HEX_STROKE;
+    static boolean dark = true;
+
+    static { applyTheme(true); }
+
+    /** Switches the palette; the window is rebuilt afterwards (see Main.restart). */
+    static void applyTheme(boolean darkMode) {
+        dark = darkMode;
+        PILL_A = new Color(0x1B3FE0);
+        PILL_B = new Color(0x2F6BFF);
+        if (darkMode) {
+            BG = new Color(0x060A1F); SURFACE = new Color(0x0F1A4A); SURFACE_DARK = new Color(0x0A1236); STROKE = new Color(0x1E2E70);
+            ACCENT = new Color(0x4F7DFF); LIVE = new Color(0xFF9A1F); TEXT = new Color(0xF4F6FF); MUTED = new Color(0x8A93C0);
+            ROW = new Color(0x0A1236); HEX_FILL = new Color(0x0A1240); HEX_STROKE = new Color(0x2A3C8F);
+        } else {
+            BG = new Color(0xF1F4FD); SURFACE = new Color(0xFFFFFF); SURFACE_DARK = new Color(0xE7EDFC); STROKE = new Color(0xCFD9F5);
+            ACCENT = new Color(0x2F5BFF); LIVE = new Color(0xF08A00); TEXT = new Color(0x0B1233); MUTED = new Color(0x5A6590);
+            ROW = new Color(0xFFFFFF); HEX_FILL = new Color(0xEEF3FF); HEX_STROKE = new Color(0xB7C5F2);
+        }
+    }
 
     static JLabel label(String text, int size, boolean bold, Color c) {
         JLabel l = new JLabel(text);
@@ -172,6 +189,15 @@ final class Ui {
                     g.fill(star);
                     break;
                 }
+                case "gear": {
+                    g.draw(new Ellipse2D.Double(0.28, 0.28, 0.44, 0.44));
+                    g.setStroke(new BasicStroke(0.14f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                    for (int i = 0; i < 8; i++) {
+                        double a = Math.toRadians(i * 45);
+                        g.draw(new Line2D.Double(0.5 + 0.3 * Math.cos(a), 0.5 + 0.3 * Math.sin(a), 0.5 + 0.42 * Math.cos(a), 0.5 + 0.42 * Math.sin(a)));
+                    }
+                    break;
+                }
                 case "flask": { // test tube / lab flask
                     Path2D flask = new Path2D.Double();
                     flask.moveTo(0.4, 0.12);
@@ -290,9 +316,9 @@ final class Ui {
             Graphics2D g = (Graphics2D) g0.create();
             antialias(g);
             Polygon p = new Polygon(new int[]{18, 86, 103, 86, 18, 1}, new int[]{1, 1, 30, 59, 59, 30}, 6);
-            g.setColor(new Color(0x0A1240));
+            g.setColor(HEX_FILL);
             g.fillPolygon(p);
-            g.setColor(new Color(0x2A3C8F));
+            g.setColor(HEX_STROKE);
             g.setStroke(new BasicStroke(1.5f));
             g.drawPolygon(p);
             g.setColor(TEXT);

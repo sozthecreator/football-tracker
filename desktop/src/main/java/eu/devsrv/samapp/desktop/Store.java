@@ -42,6 +42,49 @@ final class Store {
 
     private static synchronized void put(String k, Set<String> s) {
         P.setProperty(k, String.join("\n", s));
+        P.setProperty("modified", String.valueOf(System.currentTimeMillis()));
+        save();
+        Account.pushSoon(); // teams / followed matches changed: keep the account in step
+    }
+
+    // ---- settings and account
+
+    static synchronized String setting(String k, String def) { return P.getProperty("s." + k, def); }
+
+    static synchronized void setSetting(String k, String v) {
+        P.setProperty("s." + k, v);
+        save();
+    }
+
+    static boolean flag(String k, boolean def) { return Boolean.parseBoolean(setting(k, String.valueOf(def))); }
+
+    static synchronized String user() { return P.getProperty("account.user", ""); }
+
+    static synchronized String token() { return P.getProperty("account.token", ""); }
+
+    static synchronized void setAccount(String user, String token) {
+        P.setProperty("account.user", user);
+        P.setProperty("account.token", token);
+        save();
+    }
+
+    static synchronized void clearAccount() {
+        P.remove("account.user");
+        P.remove("account.token");
+        save();
+    }
+
+    static synchronized long modified() { return Long.parseLong(P.getProperty("modified", "0")); }
+
+    /** The three synced sets, as stored. */
+    static Set<String> raw(String k) { return set(k); }
+
+    /** Replace local teams/follows/auto (no change notification: used when syncing from the account). */
+    static synchronized void replaceData(Set<String> teams, Set<String> follows, Set<String> auto, long modified) {
+        P.setProperty("teams", String.join("\n", teams));
+        P.setProperty("follows", String.join("\n", follows));
+        P.setProperty("auto", String.join("\n", auto));
+        P.setProperty("modified", String.valueOf(modified));
         save();
     }
 

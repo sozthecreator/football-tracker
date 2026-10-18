@@ -141,7 +141,7 @@ public class TrackerService extends Service {
             shownCount = count;
             getSystemService(NotificationManager.class).notify(SUMMARY_ID, Football.summary(this, count));
         }
-        handler.postDelayed(tick, anyLive ? LIVE_POLL_MS : POLL_MS);
+        handler.postDelayed(tick, (anyLive ? LIVE_POLL_MS : POLL_MS) * (Settings.saver(this) ? 2 : 1));
     }
 
     @Override

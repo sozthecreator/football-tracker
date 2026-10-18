@@ -87,7 +87,23 @@ public final class Main {
             if (k == null || k.isBlank()) System.exit(0);
             Store.setApiKey(k);
         }
+        Ui.applyTheme(!"light".equals(Store.setting("theme", "dark")));
         SwingUtilities.invokeLater(() -> new Main().start());
+    }
+
+    private static boolean updateChecked;
+
+    /** Rebuild the whole window (theme change): stop this instance's timers and open a fresh one. */
+    void restart() {
+        ex.shutdownNow();
+        if (tray != null) SystemTray.getSystemTray().remove(tray);
+        frame.dispose();
+        SwingUtilities.invokeLater(() -> new Main().start());
+    }
+
+    /** Another device changed the teams: redraw. */
+    void refreshAfterSync() {
+        SwingUtilities.invokeLater(() -> { buildChips(); reload(); });
     }
 
     private static void selfTest() throws Exception {
@@ -144,6 +160,12 @@ public final class Main {
         head.add(titles, BorderLayout.CENTER);
         JPanel testBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
         testBox.setOpaque(false);
+        Pill gear = new Pill("", null, null, Ui.ACCENT, Ui.ACCENT, 13);
+        gear.setIcon(new Ui.Glyph("gear", 16));
+        gear.setToolTipText("Settings");
+        Ui.click(gear, () -> SettingsDialog.show(this, frame));
+        testBox.add(gear);
+        testBox.add(javax.swing.Box.createHorizontalStrut(8));
         testBox.add(test);
         head.add(testBox, BorderLayout.EAST);
 
@@ -183,7 +205,8 @@ public final class Main {
         frame.setMinimumSize(new Dimension(420, 500));
         frame.setLocationByPlatform(true);
         setupTray();
-        selectTab(Store.favourites().isEmpty() ? LEAGUES : MINE);
+        int startTab = Integer.parseInt(Store.setting("startTab", "-1"));
+        selectTab(startTab >= 0 ? startTab : Store.favourites().isEmpty() ? LEAGUES : MINE);
         frame.setVisible(true);
 
         String shot = System.getProperty("shot"); // dev aid: -Dshot=/tmp/x.png [-Dtab=3] paints the window to a PNG and exits
@@ -201,9 +224,11 @@ public final class Main {
                 System.exit(0);
             }).start();
         }
-        ex.scheduleWithFixedDelay(this::refresh, 0, SCREEN_MS, TimeUnit.MILLISECONDS);
+        Account.onPulled = this::refreshAfterSync;
+        if (Account.signedIn()) ex.execute(() -> { try { if (Account.sync()) refreshAfterSync(); } catch (Exception e) { Store.log("sync failed: " + e.getMessage()); } });
+        ex.scheduleWithFixedDelay(this::refresh, 0, SCREEN_MS * saver(), TimeUnit.MILLISECONDS);
         ex.schedule(this::trackTick, 2, TimeUnit.SECONDS);
-        if (System.getProperty("shot") == null) Updates.check(frame, false);
+        if (System.getProperty("shot") == null && !updateChecked) { updateChecked = true; Updates.check(frame, false); }
     }
 
     private void selectTab(int t) {
@@ -331,7 +356,7 @@ public final class Main {
         } catch (Exception e) {
             Store.log("tracker error: " + e);
         } finally {
-            ex.schedule(this::trackTick, delay, TimeUnit.MILLISECONDS);
+            if (!ex.isShutdown()) ex.schedule(this::trackTick, delay * saver(), TimeUnit.MILLISECONDS);
         }
     }
 
@@ -410,8 +435,11 @@ public final class Main {
         }
     }
 
+    private static int saver() { return Store.flag("saver", false) ? 2 : 1; }
+
     private void notifyUser(String head, String body) {
         Store.log("notify: " + head + " | " + body);
+        if (!Store.flag("notifications", true)) return;
         if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("linux")) {
             try { new ProcessBuilder("notify-send", "-a", "Football Tracker", head, body).start(); return; } catch (Exception ignored) { /* fall through to tray */ }
         }

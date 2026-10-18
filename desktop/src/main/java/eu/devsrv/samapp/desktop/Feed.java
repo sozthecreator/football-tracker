@@ -136,6 +136,20 @@ final class Feed {
 
     static boolean hasProxy() { return PROXY != null; }
 
+    static String proxy() { return PROXY; }
+
+    /** JSON request to the score server (accounts). Returns the parsed object; throws with the server's error message on 4xx/5xx. */
+    static Map<String, Object> send(String method, String path, Object body, String token) throws Exception {
+        if (PROXY == null) throw new java.io.IOException("Accounts need the score server");
+        HttpRequest.Builder b = HttpRequest.newBuilder(URI.create(PROXY + path)).timeout(Duration.ofSeconds(20)).header("Content-Type", "application/json").header("User-Agent", "FootballTrackerDesktop");
+        if (token != null && !token.isEmpty()) b.header("Authorization", "Bearer " + token);
+        b.method(method, body == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(Json.write(body)));
+        HttpResponse<String> r = HTTP.send(b.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        Map<String, Object> o = Json.obj(Json.parse(r.body().isBlank() ? "{}" : r.body()));
+        if (r.statusCode() >= 400) throw new java.io.IOException(Json.str(o, "error").isEmpty() ? "Error " + r.statusCode() : Json.str(o, "error"));
+        return o;
+    }
+
     /** A developer key (env FOOTBALL_DATA_KEY or the saved one) talks to football-data.org directly; otherwise everything goes through the proxy. */
     static String base() {
         return Store.apiKey().isEmpty() && PROXY != null ? PROXY + "/v4" : API;
@@ -325,6 +339,47 @@ final class Feed {
         private Json(String s) { this.s = s; }
 
         static Object parse(String s) { return new Json(s).value(); }
+
+        /** Maps, lists, strings, numbers and booleans to JSON text. */
+        static String write(Object o) {
+            StringBuilder sb = new StringBuilder();
+            write(o, sb);
+            return sb.toString();
+        }
+
+        private static void write(Object o, StringBuilder sb) {
+            if (o == null) sb.append("null");
+            else if (o instanceof Map) {
+                sb.append('{');
+                boolean first = true;
+                for (Map.Entry<?, ?> e : ((Map<?, ?>) o).entrySet()) {
+                    if (!first) sb.append(',');
+                    first = false;
+                    write(String.valueOf(e.getKey()), sb);
+                    sb.append(':');
+                    write(e.getValue(), sb);
+                }
+                sb.append('}');
+            } else if (o instanceof Iterable) {
+                sb.append('[');
+                boolean first = true;
+                for (Object x : (Iterable<?>) o) {
+                    if (!first) sb.append(',');
+                    first = false;
+                    write(x, sb);
+                }
+                sb.append(']');
+            } else if (o instanceof Number || o instanceof Boolean) sb.append(o);
+            else {
+                sb.append('"');
+                for (char c : String.valueOf(o).toCharArray()) {
+                    if (c == '"' || c == '\\') sb.append('\\').append(c);
+                    else if (c < 0x20) sb.append(String.format("\\u%04x", (int) c));
+                    else sb.append(c);
+                }
+                sb.append('"');
+            }
+        }
 
         @SuppressWarnings("unchecked")
         static Map<String, Object> obj(Object o) { return o instanceof Map ? (Map<String, Object>) o : new LinkedHashMap<>(); }

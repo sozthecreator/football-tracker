@@ -1,6 +1,5 @@
 package eu.devsrv.samapp;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 /** Headlines about one team (Google News RSS, no key). Tapping one opens the article in the in-app browser. */
-public class NewsActivity extends Activity {
+public class NewsActivity extends BaseActivity {
     private static final class Item { String title = "", link = "", source = "", ago = ""; }
 
     private final List<Item> items = new ArrayList<>();

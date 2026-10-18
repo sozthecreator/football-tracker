@@ -334,7 +334,7 @@ final class Football {
 
     // ---- followed matches (kept as "league|id|when|home|away" so the service can notify without a fetch)
 
-    private static SharedPreferences prefs(Context c) {
+    static SharedPreferences prefs(Context c) {
         return c.getSharedPreferences("follows", Context.MODE_PRIVATE);
     }
 
@@ -362,12 +362,20 @@ final class Football {
         Set<String> set = new HashSet<>(prefs(c).getStringSet("k", new HashSet<>()));
         set.add(m.key() + "|" + m.when + "|" + m.home + "|" + m.away + "|" + m.homeLogo + "|" + m.awayLogo);
         prefs(c).edit().putStringSet("k", set).apply();
+        touch(c);
     }
 
     static void unfollow(Context c, String key) {
         Set<String> set = new HashSet<>(prefs(c).getStringSet("k", new HashSet<>()));
         set.removeIf(s -> s.startsWith(key + "|"));
         prefs(c).edit().putStringSet("k", set).apply();
+        touch(c);
+    }
+
+    /** Marks teams/follows as changed now, so signed-in accounts sync it. */
+    private static void touch(Context c) {
+        prefs(c).edit().putLong("modified", System.currentTimeMillis()).apply();
+        Sync.pushSoon(c);
     }
 
     // ---- favourite teams: their matches are followed automatically
@@ -382,6 +390,7 @@ final class Football {
         boolean added = set.add(team);
         if (!added) set.remove(team);
         prefs(c).edit().putStringSet("teams", set).apply();
+        touch(c);
         return added;
     }
 
@@ -398,7 +407,7 @@ final class Football {
             if (m.state.equals("post") || !(teams.contains(m.home) || teams.contains(m.away))) continue;
             if (auto.add(m.key())) { follow(c, m); any = true; }
         }
-        if (any) prefs(c).edit().putStringSet("auto", auto).apply();
+        if (any) { prefs(c).edit().putStringSet("auto", auto).apply(); touch(c); }
         return any;
     }
 
@@ -432,6 +441,7 @@ final class Football {
      * Blocking when logos aren't cached yet, so call off the main thread.
      */
     static void post(Context c, Match m, boolean alert) {
+        if (!Settings.notifications(c)) return;
         ensureChannels(c);
         boolean pre = m.state.equals("pre"), live = m.state.equals("in");
         String score = pre ? "vs" : m.hg + " - " + m.ag;

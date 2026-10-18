@@ -20,6 +20,7 @@ final class Sounds {
     static void boo(Context c) { play(c, R.raw.boo, 0, CLIP_MS); }
 
     private static void play(Context c, int res, int startAtMs, long maxMs) {
+        if (!Settings.sounds(c)) return;
         // The service calls from its worker thread, whose looper is busy/idle unpredictably; MediaPlayer callbacks must run on main like the test button.
         MAIN.post(() -> playOnMain(c, res, startAtMs, maxMs));
     }

@@ -1,7 +1,6 @@
 package eu.devsrv.samapp;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -30,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
     private static final long POLL_MS = 20_000, DAY = 86_400_000L;
     private int accent, onAccent, live, onLive = 0xFF1A1000, muted, text; // from res/values/colors.xml, set in onCreate
 
@@ -58,6 +57,7 @@ public class MainActivity extends Activity {
     private volatile boolean mineLoaded; // false = My teams needs a full-week scan, true = just refresh today
     private boolean loaded;              // first data for the current view has arrived
     private boolean running;
+    private int themeAtStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +108,10 @@ public class MainActivity extends Activity {
         });
         requestNotificationPermission();
 
-        selectTab(!Football.favourites(this).isEmpty() ? TAB_MINE : TAB_LEAGUES);
+        findViewById(R.id.settings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
+        themeAtStart = Settings.theme(this);
+        int start = Settings.startTab(this);
+        selectTab(start >= 0 ? start : !Football.favourites(this).isEmpty() ? TAB_MINE : TAB_LEAGUES);
     }
 
     /** Debug menu (hold Test): dialog with an "Events" tab (event log, newest last), a "Data" tab (feed source and match data) and a "Refresh" tab (how often and how fast the feed is polled). */
@@ -239,7 +242,15 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (Settings.theme(this) != themeAtStart) { recreate(); return; } // theme changed in Settings
         Updates.check(this, false); // every time the app is opened (20s debounce)
+        if (Settings.signedIn(this)) new Thread(() -> {
+            try {
+                if (Sync.sync(this)) runOnUiThread(() -> { buildChips(); reload(); Football.syncService(this); }); // another device changed your teams
+            } catch (Exception e) {
+                EventLog.add(this, "sync failed: " + e.getMessage());
+            }
+        }).start();
         running = true;
         handler.post(poll);
     }
@@ -368,7 +379,7 @@ public class MainActivity extends Activity {
 
     private void reschedule() {
         handler.removeCallbacks(poll);
-        if (running) handler.postDelayed(poll, POLL_MS);
+        if (running) handler.postDelayed(poll, POLL_MS * (Settings.saver(this) ? 2 : 1));
     }
 
     /** Live matches first, then today and upcoming (soonest first), then earlier days (most recent first). Table tab: heading + one row per team. */

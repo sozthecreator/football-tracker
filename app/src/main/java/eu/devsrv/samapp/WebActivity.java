@@ -1,6 +1,5 @@
 package eu.devsrv.samapp;
 
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.webkit.WebSettings;
@@ -9,7 +8,7 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 /** In-app browser for a match page; Back goes through the page history, then closes. */
-public class WebActivity extends Activity {
+public class WebActivity extends BaseActivity {
     private WebView web;
 
     @Override

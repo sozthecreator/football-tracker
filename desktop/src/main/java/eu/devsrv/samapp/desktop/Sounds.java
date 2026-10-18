@@ -13,6 +13,7 @@ final class Sounds {
     static void boo() { play("boo"); }
 
     private static void play(String name) {
+        if (!Store.flag("sounds", true)) return;
         Store.log("sound " + name + ": requested");
         try {
             Clip c = AudioSystem.getClip();
