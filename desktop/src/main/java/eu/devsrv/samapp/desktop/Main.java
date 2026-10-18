@@ -112,7 +112,7 @@ public final class Main {
         frame.setContentPane(new Ui.Centered(page, 1500));
 
         Pill test = new Pill("Test", null, null, Ui.ACCENT, Ui.ACCENT, 13);
-        test.setIcon(new Ui.Glyph("bell", 15));
+        test.setIcon(new Ui.Glyph("flask", 15));
         test.setIconTextGap(6);
         test.setToolTipText("Click: fake goals (sound + notification). Hold or right-click: debug menu (Ctrl+D)");
         test.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));

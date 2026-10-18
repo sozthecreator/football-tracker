@@ -127,7 +127,7 @@ final class Ui {
         @Override public Dimension getPreferredSize() { return getComponent(0).getPreferredSize(); }
     }
 
-    /** Vector icons (emoji don't render reliably in Swing): ball, star, bell, trophy. Painted in the component's foreground colour. */
+    /** Vector icons (emoji don't render reliably in Swing): ball, star, bell, trophy, flask. Painted in the component's foreground colour. */
     static final class Glyph implements Icon {
         private final String kind;
         private final int size;
@@ -170,6 +170,21 @@ final class Ui {
                     }
                     star.closePath();
                     g.fill(star);
+                    break;
+                }
+                case "flask": { // test tube / lab flask
+                    Path2D flask = new Path2D.Double();
+                    flask.moveTo(0.4, 0.12);
+                    flask.lineTo(0.6, 0.12);
+                    flask.lineTo(0.6, 0.42);
+                    flask.lineTo(0.86, 0.82);
+                    flask.quadTo(0.9, 0.92, 0.8, 0.92);
+                    flask.lineTo(0.2, 0.92);
+                    flask.quadTo(0.1, 0.92, 0.14, 0.82);
+                    flask.lineTo(0.4, 0.42);
+                    flask.closePath();
+                    g.fill(flask);
+                    g.draw(new Line2D.Double(0.32, 0.1, 0.68, 0.1));
                     break;
                 }
                 case "bell": {

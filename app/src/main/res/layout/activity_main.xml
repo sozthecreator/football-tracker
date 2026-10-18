@@ -47,7 +47,7 @@
             android:paddingTop="7dp"
             android:paddingEnd="14dp"
             android:paddingBottom="7dp"
-            android:text="🔔 Test"
+            android:text="🧪 Test"
             android:textColor="@color/accent"
             android:textSize="13sp" />
     </LinearLayout>
