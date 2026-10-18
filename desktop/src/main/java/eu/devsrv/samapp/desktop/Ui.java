@@ -329,29 +329,43 @@ final class Ui {
         }
     }
 
-    // ---- crests, downloaded once and cached
+    // ---- crests: generated badges
 
-    private static final Map<String, Image> CACHE = new ConcurrentHashMap<>();
-    private static final ExecutorService POOL = Executors.newFixedThreadPool(4, r -> { Thread t = new Thread(r); t.setDaemon(true); return t; });
-
-    static void crest(JLabel l, String url, int size) {
+    static void crest(JLabel l, String spec, int size) {
         l.setPreferredSize(new Dimension(size, size));
         l.setMinimumSize(new Dimension(size, size));
         l.setMaximumSize(new Dimension(size, size));
-        if (url.isEmpty()) return;
-        Image img = CACHE.get(url + size);
-        if (img != null) { l.setIcon(new ImageIcon(img)); return; }
-        POOL.execute(() -> {
-            try {
-                BufferedImage src = ImageIO.read(new java.io.ByteArrayInputStream(Feed.getBytes(url)));
-                if (src == null) return;
-                Image scaled = src.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-                CACHE.put(url + size, scaled);
-                SwingUtilities.invokeLater(() -> l.setIcon(new ImageIcon(scaled)));
-            } catch (Exception e) {
-                // no crest: the row just goes without
-            }
-        });
+        if (spec.startsWith("badge:")) l.setIcon(new ImageIcon(badge(spec, size)));
+    }
+
+    /** Generic team badge: a shield in a colour derived from the team name, with its three-letter code. */
+    static BufferedImage badge(String spec, int size) {
+        String[] p = spec.substring(6).split(":", 2);
+        String name = p.length > 1 ? p[1] : "", code = (p[0].isBlank() ? name.replaceAll("[^A-Za-z]", "") : p[0]).toUpperCase();
+        if (code.length() > 3) code = code.substring(0, 3);
+        BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        antialias(g);
+        g.scale(size, size);
+        Path2D shield = new Path2D.Double();
+        shield.moveTo(0.1, 0.08);
+        shield.lineTo(0.9, 0.08);
+        shield.lineTo(0.9, 0.5);
+        shield.quadTo(0.9, 0.86, 0.5, 0.97);
+        shield.quadTo(0.1, 0.86, 0.1, 0.5);
+        shield.closePath();
+        g.setColor(Color.getHSBColor((float) ((((name.hashCode() * 2654435761L) >>> 8) % 360) / 360.0), 0.55f, 0.58f));
+        g.fill(shield);
+        g.setColor(new Color(255, 255, 255, 150));
+        g.setStroke(new BasicStroke(0.045f));
+        g.draw(shield);
+        g.setTransform(new java.awt.geom.AffineTransform()); // text in real pixels
+        g.setColor(Color.WHITE);
+        g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, Math.max(8, Math.round(size * (code.length() > 2 ? 0.3f : 0.38f)))));
+        FontMetrics fm = g.getFontMetrics();
+        g.drawString(code, (size - fm.stringWidth(code)) / 2f, size * 0.5f + (fm.getAscent() - fm.getDescent()) / 2f);
+        g.dispose();
+        return img;
     }
 
     /** Run action when c or any descendant is clicked, except components marked with the client property "own". */
