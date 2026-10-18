@@ -44,6 +44,70 @@ final class Football {
     private static final long DAY_MS = 86_400_000L;
     private static final String CH_SCORES = "scores", CH_TRACK = "tracking_min";
 
+    /** A band of league positions with what it means (Champions League, relegation ...). */
+    static final class Zone {
+        final int from, to, color;
+        final String label;
+
+        Zone(int from, int to, int color, String label) {
+            this.from = from;
+            this.to = to;
+            this.color = color;
+            this.label = label;
+        }
+    }
+
+    private static final int BLUE = 0xFF4F7DFF, ORANGE = 0xFFFF9A1F, GREEN = 0xFF3DDC84, TEAL = 0xFF2EC4B6, PURPLE = 0xFFB388FF, RED = 0xFFFF5A5F;
+
+    /** The usual qualification, promotion and relegation places for a competition. Cup winners and league changes can shift the European places. */
+    static List<Zone> zones(String code) {
+        List<Zone> z = new ArrayList<>();
+        switch (code) {
+            case "PL":
+                z.add(new Zone(1, 4, BLUE, "Champions League")); z.add(new Zone(5, 5, ORANGE, "Europa League"));
+                z.add(new Zone(6, 6, GREEN, "Conference League")); z.add(new Zone(18, 20, RED, "Relegation"));
+                break;
+            case "ELC":
+                z.add(new Zone(1, 2, GREEN, "Promotion")); z.add(new Zone(3, 6, TEAL, "Promotion play-offs")); z.add(new Zone(22, 24, RED, "Relegation"));
+                break;
+            case "PD": case "SA":
+                z.add(new Zone(1, 4, BLUE, "Champions League")); z.add(new Zone(5, 6, ORANGE, "Europa League"));
+                z.add(new Zone(7, 7, GREEN, "Conference League")); z.add(new Zone(18, 20, RED, "Relegation"));
+                break;
+            case "BL1":
+                z.add(new Zone(1, 4, BLUE, "Champions League")); z.add(new Zone(5, 6, ORANGE, "Europa League")); z.add(new Zone(7, 7, GREEN, "Conference League"));
+                z.add(new Zone(16, 16, PURPLE, "Relegation play-off")); z.add(new Zone(17, 18, RED, "Relegation"));
+                break;
+            case "FL1":
+                z.add(new Zone(1, 3, BLUE, "Champions League")); z.add(new Zone(4, 4, ORANGE, "Europa League")); z.add(new Zone(5, 5, GREEN, "Conference League"));
+                z.add(new Zone(16, 16, PURPLE, "Relegation play-off")); z.add(new Zone(17, 18, RED, "Relegation"));
+                break;
+            case "DED":
+                z.add(new Zone(1, 2, BLUE, "Champions League qualifying")); z.add(new Zone(3, 3, ORANGE, "Europa League qualifying"));
+                z.add(new Zone(4, 4, GREEN, "Conference League qualifying")); z.add(new Zone(16, 16, PURPLE, "Relegation play-off")); z.add(new Zone(17, 18, RED, "Relegation"));
+                break;
+            case "PPL":
+                z.add(new Zone(1, 2, BLUE, "Champions League")); z.add(new Zone(3, 3, ORANGE, "Europa League"));
+                z.add(new Zone(4, 4, GREEN, "Conference League qualifying")); z.add(new Zone(16, 16, PURPLE, "Relegation play-off")); z.add(new Zone(17, 18, RED, "Relegation"));
+                break;
+            case "BSA":
+                z.add(new Zone(1, 4, BLUE, "Copa Libertadores")); z.add(new Zone(5, 6, ORANGE, "Libertadores qualifying"));
+                z.add(new Zone(7, 12, GREEN, "Copa Sudamericana")); z.add(new Zone(17, 20, RED, "Relegation"));
+                break;
+            case "CL":
+                z.add(new Zone(1, 8, GREEN, "Round of 16")); z.add(new Zone(9, 24, TEAL, "Knockout play-offs")); z.add(new Zone(25, 36, RED, "Eliminated"));
+                break;
+            default:
+                break;
+        }
+        return z;
+    }
+
+    static Zone zoneFor(List<Zone> zones, int pos) {
+        for (Zone z : zones) if (pos >= z.from && pos <= z.to) return z;
+        return null;
+    }
+
     /** One line of a league table. */
     static final class Row {
         int pos, played, gf, ga, pts;

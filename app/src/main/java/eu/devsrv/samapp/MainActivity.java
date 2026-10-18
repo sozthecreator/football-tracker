@@ -377,6 +377,11 @@ public class MainActivity extends Activity {
         if (tab == TAB_TABLE) {
             if (!table.isEmpty()) rows.add("heading");
             rows.addAll(table);
+            List<Football.Zone> zones = Football.zones(league);
+            if (!table.isEmpty() && !zones.isEmpty()) { // legend: what each coloured band means
+                rows.add("legend");
+                rows.addAll(zones);
+            }
         } else {
             List<Football.Match> sorted = new ArrayList<>(matches);
             String today = Football.ymd(System.currentTimeMillis());
@@ -476,14 +481,29 @@ public class MainActivity extends Activity {
         @Override public int getCount() { return rows.size(); }
         @Override public Object getItem(int i) { return rows.get(i); }
         @Override public long getItemId(int i) { return i; }
-        @Override public int getViewTypeCount() { return 3; }
-        @Override public int getItemViewType(int i) { return rows.get(i) instanceof String ? 0 : rows.get(i) instanceof Football.Row ? 2 : 1; }
+        @Override public int getViewTypeCount() { return 5; }
+        @Override public int getItemViewType(int i) {
+            Object o = rows.get(i);
+            return o instanceof String ? ("legend".equals(o) ? 4 : 0) : o instanceof Football.Row ? 2 : o instanceof Football.Zone ? 3 : 1;
+        }
 
         @Override
         public View getView(int i, View v, ViewGroup parent) {
             Object row = rows.get(i);
             if (row instanceof String) {
+                if ("legend".equals(row)) {
+                    if (v == null) v = getLayoutInflater().inflate(R.layout.item_note, parent, false);
+                    ((TextView) v).setText("What the colours mean (usual rules; cup winners can change the European places)");
+                    return v;
+                }
                 return v != null ? v : getLayoutInflater().inflate(R.layout.item_header, parent, false);
+            }
+            if (row instanceof Football.Zone) {
+                Football.Zone z = (Football.Zone) row;
+                if (v == null) v = getLayoutInflater().inflate(R.layout.item_legend, parent, false);
+                v.findViewById(R.id.dot).setBackgroundColor(z.color);
+                ((TextView) v.findViewById(R.id.text)).setText((z.from == z.to ? "" + z.from : z.from + "–" + z.to) + "   " + z.label);
+                return v;
             }
             if (row instanceof Football.Row) return tableRow((Football.Row) row, v, parent);
             Football.Match m = (Football.Match) row;
@@ -522,9 +542,15 @@ public class MainActivity extends Activity {
         private View tableRow(Football.Row r, View v, ViewGroup parent) {
             if (v == null) v = getLayoutInflater().inflate(R.layout.item_table_row, parent, false);
             boolean fav = Football.favourites(MainActivity.this).contains(r.team);
-            v.findViewById(R.id.bar).setVisibility(fav ? View.VISIBLE : View.INVISIBLE);
+            Football.Zone zone = Football.zoneFor(Football.zones(league), r.pos);
+            v.findViewById(R.id.bar).setBackgroundColor(zone != null ? zone.color : 0);
+            TextView zt = v.findViewById(R.id.zone);
+            zt.setVisibility(zone != null ? View.VISIBLE : View.GONE);
+            if (zone != null) { zt.setText(zone.label); zt.setTextColor(zone.color); }
             ((TextView) v.findViewById(R.id.pos)).setText(String.format(Locale.US, "%02d", r.pos));
-            ((TextView) v.findViewById(R.id.team)).setText(fav ? "★ " + r.team : r.team);
+            TextView tn = v.findViewById(R.id.team);
+            tn.setText(fav ? "★ " + r.team : r.team);
+            tn.setTextColor(fav ? accent : text);
             ((TextView) v.findViewById(R.id.played)).setText(String.format(Locale.US, "%02d", r.played));
             ((TextView) v.findViewById(R.id.goals)).setText(r.gf + "/" + r.ga);
             ((TextView) v.findViewById(R.id.pts)).setText(String.format(Locale.US, "%02d", r.pts));

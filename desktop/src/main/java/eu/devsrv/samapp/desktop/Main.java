@@ -189,7 +189,7 @@ public final class Main {
         String shot = System.getProperty("shot"); // dev aid: -Dshot=/tmp/x.png [-Dtab=3] paints the window to a PNG and exits
         if (shot != null) {
             if (System.getProperty("tab") != null) selectTab(Integer.parseInt(System.getProperty("tab")));
-            if (System.getProperty("w") != null) frame.setSize(Integer.parseInt(System.getProperty("w")), 900);
+            if (System.getProperty("w") != null) frame.setSize(Integer.parseInt(System.getProperty("w")), Integer.getInteger("h", 900));
             new Timer(9000, e -> {
                 try {
                     BufferedImage img = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -450,6 +450,22 @@ public final class Main {
             if (!table.isEmpty()) list.add(tableHeader());
             for (Feed.Row r : table) list.add(tableRow(r));
             n = table.size();
+            List<Feed.Zone> zones = Feed.zones(league);
+            if (n > 0 && !zones.isEmpty()) { // legend: what each coloured band means
+                JLabel note = Ui.label("What the colours mean (usual rules; cup winners can change the European places)", 12, false, Ui.MUTED);
+                note.setBorder(BorderFactory.createEmptyBorder(18, 26, 6, 14));
+                list.add(note);
+                for (Feed.Zone z : zones) {
+                    JPanel line = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 3));
+                    line.setBackground(Ui.BG);
+                    line.setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 0));
+                    JLabel dot = new JLabel("●");
+                    dot.setForeground(new Color(z.rgb));
+                    line.add(dot);
+                    line.add(Ui.label((z.from == z.to ? "" + z.from : z.from + "–" + z.to) + "   " + z.label, 13, false, Ui.TEXT));
+                    list.add(line);
+                }
+            }
         } else {
             List<Feed.Match> sorted = new ArrayList<>(matches);
             String today = Feed.ymd(System.currentTimeMillis());
@@ -578,7 +594,8 @@ public final class Main {
         outer.setBorder(BorderFactory.createEmptyBorder(3, 14, 3, 14));
         JPanel row = new JPanel(new BorderLayout(10, 0));
         row.setBackground(Ui.ROW);
-        row.setBorder(BorderFactory.createMatteBorder(0, 3, 0, 0, fav ? Ui.ACCENT : Ui.ROW));
+        Feed.Zone zone = Feed.zoneFor(Feed.zones(league), r.pos);
+        row.setBorder(BorderFactory.createMatteBorder(0, 3, 0, 0, zone != null ? new Color(zone.rgb) : Ui.ROW));
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
         left.setOpaque(false);
         JLabel pos = Ui.label(String.format("%02d", r.pos), 13, false, Ui.MUTED);
@@ -586,7 +603,12 @@ public final class Main {
         Ui.crest(crest, r.crest, 24);
         left.add(pos);
         left.add(crest);
-        left.add(Ui.label((fav ? "★ " : "") + r.team, 14, false, Ui.TEXT));
+        JPanel names = new JPanel();
+        names.setLayout(new BoxLayout(names, BoxLayout.Y_AXIS));
+        names.setOpaque(false);
+        names.add(Ui.label((fav ? "★ " : "") + r.team, 14, false, fav ? Ui.ACCENT : Ui.TEXT));
+        if (zone != null) names.add(Ui.label(zone.label, 10, true, new Color(zone.rgb)));
+        left.add(names);
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 8));
         right.setOpaque(false);
         right.add(num(String.format("%02d", r.played), 13, false, Ui.MUTED, 34));

@@ -21,8 +21,7 @@
         <View
             android:id="@+id/bar"
             android:layout_width="3dp"
-            android:layout_height="22dp"
-            android:background="@color/accent" />
+            android:layout_height="30dp" />
 
         <TextView
             android:id="@+id/pos"
@@ -38,16 +37,31 @@
             android:layout_height="24dp"
             android:contentDescription="@null" />
 
-        <TextView
-            android:id="@+id/team"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/text"
-            android:textSize="14sp" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/team"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/text"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/zone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/played"
