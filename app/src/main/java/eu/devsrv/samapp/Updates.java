@@ -25,7 +25,8 @@ import java.util.Scanner;
 /** Checks GitHub Releases for a newer version, asks the user, then downloads and installs the APK. */
 final class Updates {
     private static final String LATEST = "https://api.github.com/repos/kiaroa/football-tracker/releases/latest";
-    private static final long EVERY_MS = 15 * 60_000L;
+    private static final long EVERY_MS = 20_000L; // only stops back-to-back checks (e.g. returning from the in-app browser)
+    private static boolean showing;
     private static final String ACTION = "eu.devsrv.samapp.INSTALL_STATUS";
 
     /** {@code manual}: ignore the 6-hour throttle and say "up to date" when there's nothing new. */
@@ -54,13 +55,13 @@ final class Updates {
                     return;
                 }
                 String apk = url, notes = rel.optString("body", "").trim();
-                if (!manual && tag.equals(p.getString("skipped", ""))) return;
-                a.runOnUiThread(() -> new AlertDialog.Builder(a)
+                a.runOnUiThread(() -> { if (showing) return; showing = true; new AlertDialog.Builder(a)
                         .setTitle("Update available: " + tag)
                         .setMessage((notes.isEmpty() ? "" : notes + "\n\n") + "You have " + BuildConfig.VERSION_NAME + ".")
                         .setPositiveButton("Update now", (d, w) -> install(a, apk))
-                        .setNegativeButton("Later", (d, w) -> p.edit().putString("skipped", tag).apply())
-                        .show());
+                        .setNegativeButton("Later", null)
+                        .setOnDismissListener(d -> showing = false)
+                        .show(); });
             } catch (Exception e) {
                 EventLog.add(a, "update check failed: " + e);
                 if (manual) a.runOnUiThread(() -> Toast.makeText(a, "Couldn't check for updates", Toast.LENGTH_SHORT).show());

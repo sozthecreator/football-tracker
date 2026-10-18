@@ -239,7 +239,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Updates.check(this, false); // throttled to once per 15 minutes
+        Updates.check(this, false); // every time the app is opened (20s debounce)
         running = true;
         handler.post(poll);
     }
