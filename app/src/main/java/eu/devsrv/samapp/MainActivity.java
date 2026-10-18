@@ -108,6 +108,11 @@ public class MainActivity extends BaseActivity {
         });
         requestNotificationPermission();
 
+        View support = findViewById(R.id.support);
+        if (!BuildConfig.SUPPORT_URL.isEmpty()) { // only shown once a support page is configured
+            support.setVisibility(View.VISIBLE);
+            support.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.SUPPORT_URL))));
+        }
         findViewById(R.id.settings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         themeAtStart = Settings.theme(this);
         int start = Settings.startTab(this);

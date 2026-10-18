@@ -29,5 +29,7 @@ tasks.processResources {
     filesMatching("version.properties") { filter { it.replace("@VERSION@", appVersion) } }
     val workerUrl = (findProperty("workerUrl") as String?) ?: localProps.getProperty("workerUrl", "")
     inputs.property("workerUrl", workerUrl)
-    filesMatching("server.properties") { filter { it.replace("@WORKER_URL@", workerUrl) } }
+    val supportUrl = (findProperty("supportUrl") as String?) ?: ""
+    inputs.property("supportUrl", supportUrl)
+    filesMatching("server.properties") { filter { it.replace("@WORKER_URL@", workerUrl).replace("@SUPPORT_URL@", supportUrl) } }
 }

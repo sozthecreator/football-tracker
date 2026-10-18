@@ -164,6 +164,12 @@ public final class Main {
         gear.setIcon(new Ui.Glyph("gear", 16));
         gear.setToolTipText("Settings");
         Ui.click(gear, () -> SettingsDialog.show(this, frame));
+        if (!Feed.supportUrl().isEmpty()) { // only shown once a support page is configured
+            Pill support = new Pill("♥ Support", null, null, Ui.LIVE, Ui.LIVE, 13);
+            Ui.click(support, () -> browse(Feed.supportUrl()));
+            testBox.add(support);
+            testBox.add(javax.swing.Box.createHorizontalStrut(8));
+        }
         testBox.add(gear);
         testBox.add(javax.swing.Box.createHorizontalStrut(8));
         testBox.add(test);

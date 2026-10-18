@@ -23,6 +23,7 @@ android {
         // -PfootballDataKey= (empty) builds an APK without the key, which then uses the score server (workerUrl)
         val key = (findProperty("footballDataKey") as String?) ?: localProps.getProperty("footballDataKey", "")
         buildConfigField("String", "FOOTBALL_DATA_KEY", "\"$key\"")
+        buildConfigField("String", "SUPPORT_URL", "\"${(findProperty("supportUrl") as String?) ?: ""}\"")
         buildConfigField("String", "WORKER_URL", "\"${localProps.getProperty("workerUrl", "")}\"")
     }
 

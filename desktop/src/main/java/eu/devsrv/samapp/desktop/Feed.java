@@ -136,6 +136,18 @@ final class Feed {
 
     static boolean hasProxy() { return PROXY != null; }
 
+    /** Support page (Buy Me a Coffee etc.) baked in at build time; empty = no Support button. */
+    static String supportUrl() {
+        try (java.io.InputStream in = Feed.class.getResourceAsStream("/server.properties")) {
+            java.util.Properties p = new java.util.Properties();
+            if (in != null) p.load(in);
+            String u = p.getProperty("support", "").trim();
+            return u.startsWith("@") ? "" : u;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     static String proxy() { return PROXY; }
 
     /** JSON request to the score server (accounts). Returns the parsed object; throws with the server's error message on 4xx/5xx. */
