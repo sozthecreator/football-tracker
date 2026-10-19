@@ -241,9 +241,7 @@ final class Football {
 
     /** Badge URL. football-data's own image host is unreliable, so with a score server the badge comes from it (matched by team name). */
     private static String logo(JSONObject team, String comp) {
-        if (BuildConfig.WORKER_URL.isEmpty()) return smallLogo(team.isNull("crest") ? "" : team.optString("crest"));
-        return BuildConfig.WORKER_URL + "/logo?name=" + android.net.Uri.encode(team.isNull("name") ? "" : team.optString("name"))
-                + "&short=" + android.net.Uri.encode(teamName(team)) + "&comp=" + android.net.Uri.encode(comp);
+        return smallLogo(team.isNull("crest") ? "" : team.optString("crest")); // football-data.org's own crest image
     }
 
     private static String teamName(JSONObject t) {
