@@ -1,0 +1,71 @@
+name: Installers (msi + deb)
+
+# Builds the Windows .msi and the Linux .deb for one release tag and attaches them to that GitHub Release.
+# Run from the Actions tab (Run workflow, enter the tag, e.g. v1.3.2) or: gh workflow run installers.yml -f tag=v1.3.2
+# Needs a repository variable WORKER_URL = the deployed Cloudflare Worker URL.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build, e.g. v1.3.2'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  msi:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build app jar (score-server URL baked in)
+        shell: bash
+        run: ./gradlew -PdesktopOnly -PworkerUrl="${{ vars.WORKER_URL }}" :desktop:installDist
+      - name: Package .msi
+        shell: bash
+        run: |
+          VERSION=$(grep '^appVersion=' gradle.properties | cut -d= -f2)
+          jpackage --type msi --name "Football Tracker" --app-version "$VERSION" --vendor "Football Tracker" \
+            --description "Live football scores, goal sounds and notifications" \
+            --input desktop/build/install/football-tracker/lib --main-jar desktop.jar \
+            --main-class eu.devsrv.samapp.desktop.Main --icon desktop/packaging/icon.ico \
+            --add-modules java.desktop,java.net.http,java.xml,java.prefs,java.logging,jdk.crypto.ec \
+            --win-menu --win-shortcut --win-dir-chooser --dest dist
+          mv "dist/Football Tracker-$VERSION.msi" "dist/football-tracker-$VERSION.msi"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          files: dist/*.msi
+
+  deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build app jar (score-server URL baked in)
+        run: ./gradlew -PdesktopOnly -PworkerUrl="${{ vars.WORKER_URL }}" :desktop:installDist
+      - name: Package .deb
+        run: |
+          VERSION=$(grep '^appVersion=' gradle.properties | cut -d= -f2)
+          jpackage --type deb --name football-tracker --app-version "$VERSION" --vendor "Football Tracker" \
+            --description "Live football scores, goal sounds and notifications" \
+            --input desktop/build/install/football-tracker/lib --main-jar desktop.jar \
+            --main-class eu.devsrv.samapp.desktop.Main --icon desktop/packaging/icon.png \
+            --add-modules java.desktop,java.net.http,java.xml,java.prefs,java.logging \
+            --linux-shortcut --linux-menu-group Sports --dest dist
+          ls -l dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          files: dist/*.deb
