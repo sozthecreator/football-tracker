@@ -352,11 +352,29 @@ final class Ui {
 
     // ---- crests: generated badges
 
+    private static final Map<String, Image> CACHE = new ConcurrentHashMap<>();
+    private static final ExecutorService POOL = Executors.newFixedThreadPool(4, r -> { Thread t = new Thread(r); t.setDaemon(true); return t; });
+
+    /** Team crest: a generated badge for "badge:..." specs, otherwise the image at the URL, loaded in the background. */
     static void crest(JLabel l, String spec, int size) {
         l.setPreferredSize(new Dimension(size, size));
         l.setMinimumSize(new Dimension(size, size));
         l.setMaximumSize(new Dimension(size, size));
-        if (spec.startsWith("badge:")) l.setIcon(new ImageIcon(badge(spec, size)));
+        if (spec.startsWith("badge:")) { l.setIcon(new ImageIcon(badge(spec, size))); return; }
+        if (spec.isEmpty()) return;
+        Image img = CACHE.get(spec + size);
+        if (img != null) { l.setIcon(new ImageIcon(img)); return; }
+        POOL.execute(() -> {
+            try {
+                BufferedImage src = ImageIO.read(new java.io.ByteArrayInputStream(Feed.getBytes(spec)));
+                if (src == null) return;
+                Image scaled = src.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+                CACHE.put(spec + size, scaled);
+                SwingUtilities.invokeLater(() -> l.setIcon(new ImageIcon(scaled)));
+            } catch (Exception e) {
+                // no crest: the row just goes without
+            }
+        });
     }
 
     /** Generic team badge: a shield in a colour derived from the team name, with its three-letter code. */

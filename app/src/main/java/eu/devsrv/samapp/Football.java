@@ -204,7 +204,7 @@ final class Football {
             Row r = new Row();
             r.pos = t.getInt("position");
             r.team = teamName(team);
-            r.crest = Badge.spec(team.optString("tla"), teamName(team));
+            r.crest = logo(team, code);
             r.played = t.getInt("playedGames");
             r.gf = t.getInt("goalsFor");
             r.ga = t.getInt("goalsAgainst");
@@ -237,6 +237,13 @@ final class Football {
     static String url(String competitions, long from, long to) {
         return base() + "/matches?dateFrom=" + dash(from) + "&dateTo=" + dash(to)
                 + (competitions == null ? "" : "&competitions=" + competitions);
+    }
+
+    /** Badge URL. football-data's own image host is unreliable, so with a score server the badge comes from it (matched by team name). */
+    private static String logo(JSONObject team, String comp) {
+        if (BuildConfig.WORKER_URL.isEmpty()) return smallLogo(team.isNull("crest") ? "" : team.optString("crest"));
+        return BuildConfig.WORKER_URL + "/logo?name=" + android.net.Uri.encode(team.isNull("name") ? "" : team.optString("name"))
+                + "&short=" + android.net.Uri.encode(teamName(team)) + "&comp=" + android.net.Uri.encode(comp);
     }
 
     private static String teamName(JSONObject t) {
@@ -307,11 +314,18 @@ final class Football {
             JSONObject ft = e.getJSONObject("score").getJSONObject("fullTime"); // current score while live
             if (!ft.isNull("home")) m.hg = String.valueOf(ft.getInt("home"));
             if (!ft.isNull("away")) m.ag = String.valueOf(ft.getInt("away"));
-            m.homeLogo = Badge.spec(h.optString("tla"), m.home);
-            m.awayLogo = Badge.spec(a.optString("tla"), m.away);
+            m.homeLogo = logo(h, m.league);
+            m.awayLogo = logo(a, m.league);
             out.add(m);
         }
         return out;
+    }
+
+    /** ESPN's logos are 500px; its image combiner serves a 96px copy. football-data crests are often SVG, which Android can't decode, so a proxy turns those into PNG. */
+    private static String smallLogo(String url) {
+        if (url.endsWith(".svg")) return "https://wsrv.nl/?url=" + url + "&w=96&h=96&output=png";
+        String host = "https://a.espncdn.com";
+        return url.startsWith(host) ? host + "/combiner/i?img=" + url.substring(host.length()) + "&w=96&h=96" : url;
     }
 
     static String ymd(long millis) {
@@ -476,8 +490,8 @@ final class Football {
     static Match test(int hg, int ag, String status) {
         Match m = new Match();
         m.league = "test"; m.id = "1"; m.home = "Arsenal"; m.away = "Chelsea";
-        m.homeLogo = Badge.spec("ARS", "Arsenal");
-        m.awayLogo = Badge.spec("CHE", "Chelsea");
+        m.homeLogo = smallLogo("https://a.espncdn.com/i/teamlogos/soccer/500/359.png");
+        m.awayLogo = smallLogo("https://a.espncdn.com/i/teamlogos/soccer/500/363.png");
         m.hg = String.valueOf(hg); m.ag = String.valueOf(ag); m.state = "post"; m.status = status;
         return m;
     }

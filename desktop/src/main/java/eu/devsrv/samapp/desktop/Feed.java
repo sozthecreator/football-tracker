@@ -293,9 +293,14 @@ final class Feed {
         return DateTimeFormatter.ofPattern("HH:mm").format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(when), ZoneId.systemDefault()));
     }
 
-    /** Generic badge description "badge:TLA:Team name" (drawn by Ui.crest; no club crests are used, so nothing needs a licence). */
+    /** Badge URL. football-data's own image host is unreliable, so with a score server the badge comes from it (matched by team name). */
     static String logo(Map<String, Object> team, String comp) {
-        return "badge:" + Json.str(team, "tla").replace(":", "") + ":" + teamName(team).replace(":", "");
+        if (PROXY != null) {
+            return PROXY + "/logo?name=" + URLEncoder.encode(Json.str(team, "name"), StandardCharsets.UTF_8)
+                    + "&short=" + URLEncoder.encode(teamName(team), StandardCharsets.UTF_8) + "&comp=" + URLEncoder.encode(comp, StandardCharsets.UTF_8);
+        }
+        String url = Json.str(team, "crest");
+        return url.endsWith(".svg") ? "https://wsrv.nl/?url=" + url + "&w=96&h=96&output=png" : url; // ImageIO can't read SVG
     }
 
     static String leagueName(String code) {
