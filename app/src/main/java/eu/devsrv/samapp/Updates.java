@@ -24,7 +24,7 @@ import java.util.Scanner;
 
 /** Checks GitHub Releases for a newer version, asks the user, then downloads and installs the APK. */
 final class Updates {
-    private static final String LATEST = "https://api.github.com/repos/kiaroa/football-tracker/releases/latest";
+    private static final String LATEST = "https://api.github.com/repos/sozthecreator/football-tracker/releases/latest";
     private static final long EVERY_MS = 20_000L; // only stops back-to-back checks (e.g. returning from the in-app browser)
     private static boolean showing;
     private static final String ACTION = "eu.devsrv.samapp.INSTALL_STATUS";

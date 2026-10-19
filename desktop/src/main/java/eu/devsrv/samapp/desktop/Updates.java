@@ -19,7 +19,7 @@ import javax.swing.SwingUtilities;
 
 /** Checks GitHub Releases for a newer version, asks the user, then downloads the installer and opens it. */
 final class Updates {
-    private static final String LATEST = "https://api.github.com/repos/kiaroa/football-tracker/releases/latest";
+    private static final String LATEST = "https://api.github.com/repos/sozthecreator/football-tracker/releases/latest";
 
     static String version() {
         try (InputStream in = Updates.class.getResourceAsStream("/version.properties")) {
