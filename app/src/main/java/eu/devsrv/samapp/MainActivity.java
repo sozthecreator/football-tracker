@@ -5,14 +5,13 @@ import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.SpannableString;
-import android.text.style.RelativeSizeSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -35,7 +34,7 @@ public class MainActivity extends BaseActivity {
 
     private static final int TAB_LEAGUES = 0, TAB_MINE = 1, TAB_FOLLOWING = 2, TAB_TABLE = 3;
     private static final String[] TITLES = {"Leagues", "My teams", "Following", "Table"};
-    private static final String[] ICONS = {"⚽", "★", "🔔", "🏆"};
+    private static final int[] NAV_ICONS = {R.drawable.ic_ball, R.drawable.ic_star, R.drawable.ic_bell, R.drawable.ic_trophy};
     private static final String[] EMPTY = {
             "No matches this week",
             "No matches for your teams this week",
@@ -280,10 +279,12 @@ public class MainActivity extends BaseActivity {
         tab = t;
         title.setText(TITLES[t]);
         for (int i = 0; i < nav.length; i++) {
-            SpannableString s = new SpannableString(ICONS[i] + "\n" + TITLES[i]);
-            s.setSpan(new RelativeSizeSpan(1.8f), 0, ICONS[i].length(), 0);
-            nav[i].setText(s);
-            nav[i].setTextColor(i == t ? accent : muted);
+            int c = i == t ? accent : muted; // selected tab in the accent colour, the rest muted
+            nav[i].setText(TITLES[i]);
+            nav[i].setCompoundDrawablesWithIntrinsicBounds(0, NAV_ICONS[i], 0, 0);
+            nav[i].setCompoundDrawablePadding(dp(4));
+            nav[i].setCompoundDrawableTintList(ColorStateList.valueOf(c));
+            nav[i].setTextColor(c);
         }
         buildChips();
         reload();
