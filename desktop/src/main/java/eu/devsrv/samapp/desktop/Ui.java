@@ -30,12 +30,16 @@ import java.util.concurrent.Executors;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 
 /** Palette and the few custom-painted widgets (rounded cards, pills, the hexagon score box, crests). */
 final class Ui {
@@ -144,14 +148,20 @@ final class Ui {
         @Override public Dimension getPreferredSize() { return getComponent(0).getPreferredSize(); }
     }
 
-    /** Vector icons (emoji don't render reliably in Swing): ball, star, bell, trophy, flask. Painted in the component's foreground colour. */
+    /** Vector icons (emoji don't render reliably in Swing): ball, star, bell, trophy, flask, heart, gear. Painted in the given colour, or the component's foreground. */
     static final class Glyph implements Icon {
         private final String kind;
         private final int size;
+        private final Color color;
 
         Glyph(String kind, int size) {
+            this(kind, size, null);
+        }
+
+        Glyph(String kind, int size, Color color) {
             this.kind = kind;
             this.size = size;
+            this.color = color;
         }
 
         @Override public int getIconWidth() { return size; }
@@ -163,7 +173,7 @@ final class Ui {
             antialias(g);
             g.translate(x, y);
             g.scale(size, size); // draw in a unit square
-            g.setColor(c.getForeground());
+            g.setColor(color != null ? color : c.getForeground());
             g.setStroke(new BasicStroke(0.07f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             switch (kind) {
                 case "ball": {
@@ -196,6 +206,17 @@ final class Ui {
                         double a = Math.toRadians(i * 45);
                         g.draw(new Line2D.Double(0.5 + 0.3 * Math.cos(a), 0.5 + 0.3 * Math.sin(a), 0.5 + 0.42 * Math.cos(a), 0.5 + 0.42 * Math.sin(a)));
                     }
+                    break;
+                }
+                case "heart": {
+                    Path2D heart = new Path2D.Double();
+                    heart.moveTo(0.5, 0.88);
+                    heart.curveTo(0.15, 0.62, 0.05, 0.45, 0.08, 0.3);
+                    heart.curveTo(0.12, 0.12, 0.42, 0.1, 0.5, 0.3);
+                    heart.curveTo(0.58, 0.1, 0.88, 0.12, 0.92, 0.3);
+                    heart.curveTo(0.95, 0.45, 0.85, 0.62, 0.5, 0.88);
+                    heart.closePath();
+                    g.fill(heart);
                     break;
                 }
                 case "flask": { // test tube / lab flask
@@ -366,6 +387,48 @@ final class Ui {
         g.drawString(code, (size - fm.stringWidth(code)) / 2f, size * 0.5f + (fm.getAscent() - fm.getDescent()) / 2f);
         g.dispose();
         return img;
+    }
+
+    /** Flat, rounded scroll bar: no arrow buttons, a slim translucent thumb on a transparent track. Also drops the pane's border. */
+    static void styleScroll(JScrollPane sp) {
+        sp.setBorder(null);
+        JScrollBar bar = sp.getVerticalScrollBar();
+        bar.setUnitIncrement(24);
+        bar.setOpaque(false);
+        bar.setPreferredSize(new Dimension(10, 0));
+        bar.setUI(new ThinScrollBar());
+    }
+
+    static final class ThinScrollBar extends BasicScrollBarUI {
+        @Override protected void configureScrollBarColors() {
+            thumbColor = new Color(MUTED.getRed(), MUTED.getGreen(), MUTED.getBlue(), 110);
+            thumbDarkShadowColor = thumbColor;
+            thumbHighlightColor = thumbColor;
+            thumbLightShadowColor = thumbColor;
+            trackColor = BG;
+        }
+
+        @Override protected JButton createDecreaseButton(int o) { return emptyButton(); }
+        @Override protected JButton createIncreaseButton(int o) { return emptyButton(); }
+
+        private static JButton emptyButton() {
+            JButton b = new JButton();
+            b.setPreferredSize(new Dimension(0, 0));
+            b.setMinimumSize(new Dimension(0, 0));
+            b.setMaximumSize(new Dimension(0, 0));
+            return b;
+        }
+
+        @Override protected void paintTrack(Graphics g, JComponent c, Rectangle r) { /* transparent */ }
+
+        @Override protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
+            if (!scrollbar.isEnabled() || r.width <= 0 || r.height <= 0) return;
+            Graphics2D g2 = (Graphics2D) g.create();
+            antialias(g2);
+            g2.setColor(thumbColor);
+            g2.fillRoundRect(r.x + 2, r.y + 2, r.width - 4, r.height - 4, 8, 8);
+            g2.dispose();
+        }
     }
 
     /** Run action when c or any descendant is clicked, except components marked with the client property "own". */
