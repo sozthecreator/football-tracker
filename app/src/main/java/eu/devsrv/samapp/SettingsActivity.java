@@ -1,6 +1,8 @@
 package eu.devsrv.samapp;
 
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -181,21 +183,26 @@ public class SettingsActivity extends BaseActivity {
         user.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         pass.setHint("Password (8+ characters)");
         pass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        EditText email = new EditText(this);
+        email.setHint("Email (for sign-up and password resets)");
+        email.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         box.addView(user);
         box.addView(pass);
-        TextView note = label("There's no email, so a forgotten password can't be reset.", 12, false, muted);
+        box.addView(email);
+        TextView note = label("Your email is only used to create the account and to reset a forgotten password.", 12, false, muted);
         box.addView(note);
         new AlertDialog.Builder(this).setTitle("Account").setView(box)
-                .setPositiveButton("Sign in", (dlg, w) -> submit(user.getText().toString(), pass.getText().toString(), false))
-                .setNegativeButton("Create account", (dlg, w) -> submit(user.getText().toString(), pass.getText().toString(), true))
-                .setNeutralButton("Cancel", null).show();
+                .setPositiveButton("Sign in", (dlg, w) -> submit(user.getText().toString(), pass.getText().toString(), "", false))
+                .setNegativeButton("Create account", (dlg, w) -> submit(user.getText().toString(), pass.getText().toString(), email.getText().toString(), true))
+                .setNeutralButton("Forgot password", (dlg, w) -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.WORKER_URL + "/forgot"))))
+                .show();
     }
 
-    private void submit(String user, String pass, boolean create) {
+    private void submit(String user, String pass, String email, boolean create) {
         Toast.makeText(this, create ? "Creating account…" : "Signing in…", Toast.LENGTH_SHORT).show();
         new Thread(() -> {
             try {
-                Sync.signIn(this, user.trim(), pass, create);
+                Sync.signIn(this, user.trim(), pass, email.trim(), create);
                 runOnUiThread(() -> { Toast.makeText(this, "Signed in as " + Settings.user(this), Toast.LENGTH_SHORT).show(); build(); });
             } catch (Exception e) {
                 runOnUiThread(() -> { Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show(); accountDialog(user); });

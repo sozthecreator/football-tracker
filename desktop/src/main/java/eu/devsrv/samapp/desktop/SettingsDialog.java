@@ -102,23 +102,27 @@ final class SettingsDialog {
             col.add(buttons);
         } else {
             col.add(wrap("Sign in to keep your favourite teams and followed matches on every device.", Ui.TEXT));
-            JTextField user = new JTextField();
+            JTextField user = new JTextField(), email = new JTextField();
             JPasswordField pass = new JPasswordField();
-            for (JTextField f : new JTextField[]{user, pass}) {
+            for (JTextField f : new JTextField[]{user, email, pass}) {
                 f.setMaximumSize(new Dimension(300, 28));
                 f.setAlignmentX(Component.LEFT_ALIGNMENT);
             }
-            JLabel ul = Ui.label("Username (letters, numbers, _)", 12, false, Ui.MUTED), pl = Ui.label("Password (8+ characters)", 12, false, Ui.MUTED);
+            JLabel ul = Ui.label("Username (letters, numbers, _)", 12, false, Ui.MUTED), el = Ui.label("Email (for sign-up and password resets)", 12, false, Ui.MUTED), pl = Ui.label("Password (8+ characters)", 12, false, Ui.MUTED);
             ul.setAlignmentX(Component.LEFT_ALIGNMENT);
+            el.setAlignmentX(Component.LEFT_ALIGNMENT);
             pl.setAlignmentX(Component.LEFT_ALIGNMENT);
             col.add(ul);
             col.add(user);
+            col.add(el);
+            col.add(email);
             col.add(pl);
             col.add(pass);
-            col.add(wrap("There's no email, so a forgotten password can't be reset.", Ui.MUTED));
+            col.add(wrap("Your email is only used to create the account and to reset a forgotten password.", Ui.MUTED));
             JPanel buttons = row();
-            buttons.add(button("Sign in", () -> signIn(user.getText(), new String(pass.getPassword()), false)));
-            buttons.add(button("Create account", () -> signIn(user.getText(), new String(pass.getPassword()), true)));
+            buttons.add(button("Sign in", () -> signIn(user.getText(), new String(pass.getPassword()), "", false)));
+            buttons.add(button("Create account", () -> signIn(user.getText(), new String(pass.getPassword()), email.getText(), true)));
+            buttons.add(button("Forgot password", this::openForgot));
             col.add(buttons);
         }
         if (!note.isEmpty()) col.add(wrap(note, Ui.LIVE));
@@ -150,9 +154,16 @@ final class SettingsDialog {
         t.start();
     }
 
-    private void signIn(String user, String pass, boolean create) {
+    /** The reset page lives on the score server, so this opens it in the browser. */
+    private void openForgot() {
+        String base = Feed.proxy();
+        if (base == null) return;
+        try { java.awt.Desktop.getDesktop().browse(java.net.URI.create(base + "/forgot")); } catch (Exception ignored) { /* no browser: nothing to show */ }
+    }
+
+    private void signIn(String user, String pass, String email, boolean create) {
         work(create ? "Creating account…" : "Signing in…", () -> {
-            Account.signIn(user.trim(), pass, create);
+            Account.signIn(user.trim(), pass, email.trim(), create);
             main.refreshAfterSync();
             return "Signed in as " + Store.user();
         });

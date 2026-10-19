@@ -7,3 +7,7 @@ preview_urls = false
 binding = "DB"
 database_name = "football-tracker"
 database_id = "18f06598-1b79-4e33-9c61-31367e2559ec"
+
+[vars]
+ADMIN_EMAIL = "smolyneux111@gmail.com"
+MAIL_FROM = "Football Tracker <onboarding@resend.dev>"

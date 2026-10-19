@@ -41,10 +41,11 @@ final class Account {
     }
 
     /** Sign in or create an account, then combine this device's teams with the account's (nothing is lost). */
-    static void signIn(String user, String password, boolean create) throws Exception {
+    static void signIn(String user, String password, String email, boolean create) throws Exception {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("username", user);
         body.put("password", password);
+        if (create) body.put("email", email);
         Map<String, Object> r = Feed.send("POST", create ? "/auth/register" : "/auth/login", body, null);
         String token = Feed.Json.str(r, "token");
         Store.setAccount(Feed.Json.str(r, "username"), token);
