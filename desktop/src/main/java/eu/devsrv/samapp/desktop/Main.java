@@ -598,6 +598,8 @@ public final class Main {
         n.setAlignmentX(Component.CENTER_ALIGNMENT);
         n.setToolTipText("Click to " + (fav ? "un-star" : "star") + " " + name);
         Ui.click(n, () -> toggleTeam(name));
+        Ui.click(crest, () -> toggleTeam(name)); // the crest and the empty space around it star the team too
+        Ui.click(c, () -> toggleTeam(name));
         JLabel s = Ui.label(sub, 10, false, Ui.MUTED);
         s.setAlignmentX(Component.CENTER_ALIGNMENT);
         c.add(crest);

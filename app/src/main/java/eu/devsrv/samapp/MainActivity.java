@@ -543,6 +543,9 @@ public class MainActivity extends BaseActivity {
             }
             team(v.findViewById(R.id.home), m.home, "★ %s");
             team(v.findViewById(R.id.away), m.away, "★ %s");
+            // tapping a team's crest or anywhere in its column stars it, instead of opening the match page
+            ((View) v.findViewById(R.id.homeLogo).getParent()).setOnClickListener(x -> toggleTeam(m.home));
+            ((View) v.findViewById(R.id.awayLogo).getParent()).setOnClickListener(x -> toggleTeam(m.away));
             Logos.load(v.findViewById(R.id.homeLogo), m.homeLogo);
             Logos.load(v.findViewById(R.id.awayLogo), m.awayLogo);
             ((TextView) v.findViewById(R.id.score)).setText(pre ? "VS" : m.hg + " : " + m.ag);
