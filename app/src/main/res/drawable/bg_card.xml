@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid-glass card: a translucent body with a bright rim. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient android:angle="270" android:startColor="@color/surface" android:endColor="@color/surface_dark" />
-    <stroke android:width="1dp" android:color="@color/stroke" />
-    <corners android:radius="22dp" />
+    <gradient android:angle="270" android:startColor="@color/glass_top" android:endColor="@color/glass_bottom" />
+    <stroke android:width="1dp" android:color="@color/glass_stroke" />
+    <corners android:radius="24dp" />
 </shape>

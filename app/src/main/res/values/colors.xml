@@ -16,4 +16,8 @@
     <color name="muted">#5A6590</color>
     <color name="hex_fill">#EEF3FF</color>
     <color name="hex_stroke">#B7C5F2</color>
+    <!-- liquid glass: frosted white over the background, with a bright rim -->
+    <color name="glass_top">#CCFFFFFF</color>
+    <color name="glass_bottom">#78FFFFFF</color>
+    <color name="glass_stroke">#FFFFFFFF</color>
 </resources>

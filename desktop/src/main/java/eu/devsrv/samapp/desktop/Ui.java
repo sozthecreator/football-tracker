@@ -14,8 +14,11 @@ import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.RadialGradientPaint;
 import java.awt.event.MouseAdapter;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -63,6 +66,11 @@ final class Ui {
             ROW = new Color(0xFFFFFF); HEX_FILL = new Color(0xEEF3FF); HEX_STROKE = new Color(0xB7C5F2);
         }
     }
+
+    /** Liquid-glass fill: a light tint in dark mode, a frosted white in light mode. */
+    static Color glassTop() { return dark ? new Color(255, 255, 255, 40) : new Color(255, 255, 255, 200); }
+    static Color glassBottom() { return dark ? new Color(255, 255, 255, 12) : new Color(255, 255, 255, 120); }
+    static Color withAlpha(Color c, int alpha) { return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha); }
 
     static JLabel label(String text, int size, boolean bold, Color c) {
         JLabel l = new JLabel(text);
@@ -279,11 +287,21 @@ final class Ui {
         protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
             antialias(g);
-            g.setPaint(new GradientPaint(0, 0, SURFACE, 0, getHeight(), SURFACE_DARK));
-            g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 28, 28);
-            g.setColor(live ? LIVE : STROKE);
-            g.setStroke(new BasicStroke(live ? 1.6f : 1f));
-            g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 28, 28);
+            int w = getWidth() - 1, h = getHeight() - 1;
+            RoundRectangle2D body = new RoundRectangle2D.Double(0.5, 0.5, w, h, 28, 28);
+            // liquid glass: a translucent body, a soft glow in the top-left and a sheen fading down from the top edge
+            g.setPaint(new GradientPaint(0, 0, glassTop(), 0, getHeight(), glassBottom()));
+            g.fill(body);
+            float r = Math.max(getWidth(), getHeight()) * 0.6f;
+            g.setPaint(new RadialGradientPaint(new Point2D.Float(getWidth() * 0.15f, 0), r, new float[]{0f, 1f},
+                    new Color[]{withAlpha(PILL_B, dark ? 70 : 60), withAlpha(PILL_B, 0)}));
+            g.fill(body);
+            g.setPaint(new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 70 : 170), 0, getHeight() * 0.45f, withAlpha(Color.WHITE, 0)));
+            g.fill(body);
+            // rim: bright along the top edge, fainter lower down (orange when live)
+            g.setPaint(live ? LIVE : new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 120 : 255), 0, getHeight(), withAlpha(STROKE, 90)));
+            g.setStroke(new BasicStroke(live ? 1.6f : 1.1f));
+            g.draw(body);
             g.dispose();
         }
     }
@@ -310,6 +328,9 @@ final class Ui {
             int arc = getHeight();
             if (fillA != null) {
                 g.setPaint(fillB == null ? fillA : new GradientPaint(0, 0, fillA, getWidth(), 0, fillB));
+                g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arc, arc);
+            } else if (outline != null) { // outlined pills get a frosted glass fill instead of a flat one
+                g.setPaint(new GradientPaint(0, 0, glassTop(), 0, getHeight(), glassBottom()));
                 g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arc, arc);
             }
             if (outline != null) {

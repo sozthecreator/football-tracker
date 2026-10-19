@@ -16,4 +16,8 @@
     <color name="muted">#8A93C0</color>
     <color name="hex_fill">#0A1240</color>
     <color name="hex_stroke">#2A3C8F</color>
+    <!-- liquid glass: a light tint over the navy, with a soft rim -->
+    <color name="glass_top">#28FFFFFF</color>
+    <color name="glass_bottom">#0CFFFFFF</color>
+    <color name="glass_stroke">#3CFFFFFF</color>
 </resources>
