@@ -11,7 +11,9 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.RadialGradientPaint;
@@ -54,6 +56,8 @@ final class Ui {
     /** Switches the palette; the window is rebuilt afterwards (see Main.restart). */
     static void applyTheme(boolean darkMode) {
         dark = darkMode;
+        backdrop = null; // rebuild the coloured backdrop in the new theme's colours
+        blurred = null;
         PILL_A = new Color(0x1B3FE0);
         PILL_B = new Color(0x2F6BFF);
         if (darkMode) {
@@ -71,6 +75,88 @@ final class Ui {
     static Color glassTop() { return dark ? new Color(255, 255, 255, 40) : new Color(255, 255, 255, 200); }
     static Color glassBottom() { return dark ? new Color(255, 255, 255, 12) : new Color(255, 255, 255, 120); }
     static Color withAlpha(Color c, int alpha) { return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha); }
+
+    /** The window's coloured backdrop (drawn by Centered), and a blurred copy that glass surfaces show through. */
+    private static Component root;
+    private static BufferedImage backdrop, blurred;
+
+    /** Soft coloured light behind the whole window, so the glass has something to refract. */
+    static void paintAmbient(Graphics2D g, int w, int h) {
+        g.setPaint(new GradientPaint(0, 0, BG, 0, h, BG));
+        g.fillRect(0, 0, w, h);
+        int m = Math.max(w, h);
+        blob(g, w * 0.18f, h * 0.22f, m * 0.45f, PILL_B, dark ? 200 : 150);
+        blob(g, w * 0.86f, h * 0.70f, m * 0.40f, LIVE, dark ? 120 : 90);
+        blob(g, w * 0.55f, h * 0.05f, m * 0.35f, new Color(0x9B5CFF), dark ? 120 : 80);
+    }
+
+    private static void blob(Graphics2D g, float x, float y, float r, Color c, int alpha) {
+        g.setPaint(new RadialGradientPaint(new Point2D.Float(x, y), r, new float[]{0f, 1f}, new Color[]{withAlpha(c, alpha), withAlpha(c, 0)}));
+        g.fillRect((int) (x - r), (int) (y - r), (int) (2 * r), (int) (2 * r));
+    }
+
+    /** Blurs a picture: shrink it, box-blur twice in each direction, stretch it back up. Cheap and soft. */
+    static BufferedImage blur(BufferedImage src) {
+        int w = src.getWidth(), h = src.getHeight(), sw = Math.max(1, w / 4), sh = Math.max(1, h / 4);
+        BufferedImage small = new BufferedImage(sw, sh, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = small.createGraphics();
+        g.drawImage(src, 0, 0, sw, sh, null);
+        g.dispose();
+        int[] px = small.getRGB(0, 0, sw, sh, null, 0, sw);
+        for (int pass = 0; pass < 2; pass++) {
+            px = boxBlur(px, sw, sh, 2, true);
+            px = boxBlur(px, sw, sh, 2, false);
+        }
+        small.setRGB(0, 0, sw, sh, px, 0, sw);
+        BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        g = out.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(small, 0, 0, w, h, null);
+        g.dispose();
+        return out;
+    }
+
+    private static int[] boxBlur(int[] src, int w, int h, int r, boolean horizontal) {
+        int[] out = new int[src.length];
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int a = 0, red = 0, green = 0, blue = 0, n = 0;
+                for (int k = -r; k <= r; k++) {
+                    int sx = horizontal ? Math.min(w - 1, Math.max(0, x + k)) : x;
+                    int sy = horizontal ? y : Math.min(h - 1, Math.max(0, y + k));
+                    int p = src[sy * w + sx];
+                    a += p >>> 24; red += (p >> 16) & 255; green += (p >> 8) & 255; blue += p & 255; n++;
+                }
+                out[y * w + x] = ((a / n) << 24) | ((red / n) << 16) | ((green / n) << 8) | (blue / n);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Liquid glass for a shape in component c: the blurred backdrop behind it, a light tint, a sheen from the top,
+     * and a bright rim that fades toward the bottom-right (orange when live).
+     */
+    static void paintGlass(Graphics2D g0, Component c, Shape body, boolean live) {
+        Graphics2D g = (Graphics2D) g0.create();
+        antialias(g);
+        if (blurred != null && root != null) {
+            Point p = SwingUtilities.convertPoint(c, 0, 0, root);
+            Graphics2D clipped = (Graphics2D) g.create();
+            clipped.clip(body);
+            clipped.drawImage(blurred, -p.x, -p.y, null);
+            clipped.dispose();
+        }
+        int h = c.getHeight();
+        g.setPaint(new GradientPaint(0, 0, glassTop(), 0, h, glassBottom()));
+        g.fill(body);
+        g.setPaint(new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 90 : 200), 0, h * 0.5f, withAlpha(Color.WHITE, 0)));
+        g.fill(body);
+        g.setPaint(live ? LIVE : new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 190 : 255), c.getWidth(), h, withAlpha(Color.WHITE, dark ? 25 : 90)));
+        g.setStroke(new BasicStroke(live ? 1.6f : 1.2f));
+        g.draw(body);
+        g.dispose();
+    }
 
     static JLabel label(String text, int size, boolean bold, Color c) {
         JLabel l = new JLabel(text);
@@ -95,6 +181,7 @@ final class Ui {
         Grid(int minW, int maxW, int maxCols) {
             setLimits(minW, maxW, maxCols);
             setBackground(BG);
+            setOpaque(false); // let the ambient backdrop show between the glass cards
         }
 
         void setLimits(int minW, int maxW, int maxCols) {
@@ -145,6 +232,23 @@ final class Ui {
             this.max = max;
             setBackground(BG);
             add(child);
+        }
+
+        /** Paints the ambient backdrop, and keeps a blurred copy of it for the glass surfaces to show through. */
+        @Override
+        protected void paintComponent(Graphics g) {
+            int w = getWidth(), h = getHeight();
+            if (w <= 0 || h <= 0) return;
+            if (backdrop == null || backdrop.getWidth() != w || backdrop.getHeight() != h) {
+                backdrop = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D bg = backdrop.createGraphics();
+                antialias(bg);
+                paintAmbient(bg, w, h);
+                bg.dispose();
+                blurred = blur(backdrop);
+                root = this;
+            }
+            g.drawImage(backdrop, 0, 0, null);
         }
 
         @Override
@@ -287,21 +391,7 @@ final class Ui {
         protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
             antialias(g);
-            int w = getWidth() - 1, h = getHeight() - 1;
-            RoundRectangle2D body = new RoundRectangle2D.Double(0.5, 0.5, w, h, 28, 28);
-            // liquid glass: a translucent body, a soft glow in the top-left and a sheen fading down from the top edge
-            g.setPaint(new GradientPaint(0, 0, glassTop(), 0, getHeight(), glassBottom()));
-            g.fill(body);
-            float r = Math.max(getWidth(), getHeight()) * 0.6f;
-            g.setPaint(new RadialGradientPaint(new Point2D.Float(getWidth() * 0.15f, 0), r, new float[]{0f, 1f},
-                    new Color[]{withAlpha(PILL_B, dark ? 70 : 60), withAlpha(PILL_B, 0)}));
-            g.fill(body);
-            g.setPaint(new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 70 : 170), 0, getHeight() * 0.45f, withAlpha(Color.WHITE, 0)));
-            g.fill(body);
-            // rim: bright along the top edge, fainter lower down (orange when live)
-            g.setPaint(live ? LIVE : new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 120 : 255), 0, getHeight(), withAlpha(STROKE, 90)));
-            g.setStroke(new BasicStroke(live ? 1.6f : 1.1f));
-            g.draw(body);
+            paintGlass(g, this, new RoundRectangle2D.Double(0.5, 0.5, getWidth() - 1, getHeight() - 1, 28, 28), live);
             g.dispose();
         }
     }
@@ -329,9 +419,8 @@ final class Ui {
             if (fillA != null) {
                 g.setPaint(fillB == null ? fillA : new GradientPaint(0, 0, fillA, getWidth(), 0, fillB));
                 g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arc, arc);
-            } else if (outline != null) { // outlined pills get a frosted glass fill instead of a flat one
-                g.setPaint(new GradientPaint(0, 0, glassTop(), 0, getHeight(), glassBottom()));
-                g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arc, arc);
+            } else if (outline != null) { // outlined pills are frosted glass instead of a flat fill
+                paintGlass(g, this, new RoundRectangle2D.Double(0.5, 0.5, getWidth() - 1, getHeight() - 1, arc, arc), false);
             }
             if (outline != null) {
                 g.setColor(outline);
@@ -431,6 +520,8 @@ final class Ui {
     /** Flat, rounded scroll bar: no arrow buttons, a slim translucent thumb on a transparent track. Also drops the pane's border. */
     static void styleScroll(JScrollPane sp) {
         sp.setBorder(null);
+        sp.setOpaque(false);
+        sp.getViewport().setOpaque(false);
         JScrollBar bar = sp.getVerticalScrollBar();
         bar.setUnitIncrement(24);
         bar.setOpaque(false);

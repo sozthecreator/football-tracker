@@ -20,4 +20,9 @@
     <color name="glass_top">#28FFFFFF</color>
     <color name="glass_bottom">#0CFFFFFF</color>
     <color name="glass_stroke">#3CFFFFFF</color>
+    <color name="glass_sheen">#33FFFFFF</color>
+    <!-- coloured light behind the screen, so the glass has something to refract -->
+    <color name="ambient_1">#994F7DFF</color>
+    <color name="ambient_2">#77FF9A1F</color>
+    <color name="ambient_3">#779B5CFF</color>
 </resources>

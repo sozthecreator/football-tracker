@@ -125,6 +125,7 @@ public final class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPanel page = new JPanel(new BorderLayout()); // content stays at a readable width when the window is maximised
         page.setBackground(Ui.BG);
+        page.setOpaque(false); // the ambient backdrop shows through the window
         frame.setContentPane(new Ui.Centered(page, 1500));
 
         Pill test = new Pill("Test", Ui.ACCENT, null, null, Color.WHITE, 13);
@@ -152,6 +153,7 @@ public final class Main {
 
         JPanel head = new JPanel(new BorderLayout());
         head.setBackground(Ui.BG);
+        head.setOpaque(false);
         head.setBorder(BorderFactory.createEmptyBorder(12, 16, 0, 16));
         JPanel titles = new JPanel();
         titles.setLayout(new BoxLayout(titles, BoxLayout.Y_AXIS));
@@ -184,8 +186,10 @@ public final class Main {
         head.add(testBox, BorderLayout.EAST);
 
         chips.setBackground(Ui.BG);
+        chips.setOpaque(false);
         JPanel top = new JPanel(new BorderLayout());
         top.setBackground(Ui.BG);
+        top.setOpaque(false);
         top.add(head, BorderLayout.NORTH);
         top.add(chips, BorderLayout.CENTER);
         page.add(top, BorderLayout.NORTH);
@@ -196,6 +200,7 @@ public final class Main {
 
         JPanel bar = new JPanel(new GridLayout(1, 4));
         bar.setBackground(Ui.BG);
+        bar.setOpaque(false);
         bar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Ui.STROKE));
         for (int i = 0; i < 4; i++) {
             int t = i;
@@ -535,6 +540,7 @@ public final class Main {
         boolean live = m.state.equals("in"), pre = m.state.equals("pre");
         JPanel outer = new JPanel(new BorderLayout());
         outer.setBackground(Ui.BG);
+        outer.setOpaque(false);
         outer.setBorder(BorderFactory.createEmptyBorder(7, 14, 7, 14));
         Card card = new Card(live);
         card.setLayout(new BorderLayout(0, 10));
