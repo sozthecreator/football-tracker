@@ -78,8 +78,10 @@ final class Sync {
     // ---- account actions (blocking: call off the main thread)
 
     /** Sign in or create an account, then combine this device's teams with the account's (nothing is lost). */
-    static void signIn(Context c, String user, String password, boolean create) throws Exception {
-        JSONObject r = call("POST", create ? "/auth/register" : "/auth/login", new JSONObject().put("username", user).put("password", password), null);
+    static void signIn(Context c, String user, String password, String email, boolean create) throws Exception {
+        JSONObject body = new JSONObject().put("username", user).put("password", password);
+        if (create) body.put("email", email);
+        JSONObject r = call("POST", create ? "/auth/register" : "/auth/login", body, null);
         Settings.setAccount(c, r.getString("username"), r.getString("token"));
         JSONObject server = call("GET", "/profile", null, r.getString("token"));
         JSONObject merged = export(c);
