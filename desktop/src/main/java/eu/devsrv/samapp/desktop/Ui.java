@@ -17,6 +17,7 @@ import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.RadialGradientPaint;
+import java.awt.geom.Area;
 import java.awt.event.MouseAdapter;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
@@ -140,21 +141,47 @@ final class Ui {
     static void paintGlass(Graphics2D g0, Component c, Shape body, boolean live) {
         Graphics2D g = (Graphics2D) g0.create();
         antialias(g);
-        if (blurred != null && root != null) {
-            Point p = SwingUtilities.convertPoint(c, 0, 0, root);
-            Graphics2D clipped = (Graphics2D) g.create();
-            clipped.clip(body);
-            clipped.drawImage(blurred, -p.x, -p.y, null);
-            clipped.dispose();
+        int w = c.getWidth(), h = c.getHeight();
+        Rectangle2D b = body.getBounds2D();
+        float edge = (float) Math.min(7, b.getHeight() * 0.15); // how wide the bent-light rim is
+        Shape inner = new RoundRectangle2D.Double(b.getX() + edge, b.getY() + edge, b.getWidth() - 2 * edge, b.getHeight() - 2 * edge, 20, 20);
+        Point p = (blurred != null && root != null) ? SwingUtilities.convertPoint(c, 0, 0, root) : new Point(0, 0);
+        if (blurred != null) {
+            // frosted centre: the blurred backdrop behind the glass
+            Graphics2D centre = (Graphics2D) g.create();
+            centre.clip(body);
+            centre.drawImage(blurred, -p.x, -p.y, null);
+            centre.dispose();
+            // bent light: the sharp backdrop shows through a rim around the edge, brightened, like light bending through thick glass
+            Area rim = new Area(body);
+            rim.subtract(new Area(inner));
+            Graphics2D bent = (Graphics2D) g.create();
+            bent.clip(rim);
+            bent.drawImage(backdrop, -p.x, -p.y, null);
+            bent.setPaint(withAlpha(Color.WHITE, dark ? 30 : 70));
+            bent.fill(rim);
+            bent.dispose();
         }
-        int h = c.getHeight();
+        // body tint
         g.setPaint(new GradientPaint(0, 0, glassTop(), 0, h, glassBottom()));
         g.fill(body);
-        g.setPaint(new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 90 : 200), 0, h * 0.5f, withAlpha(Color.WHITE, 0)));
-        g.fill(body);
-        g.setPaint(live ? LIVE : new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 190 : 255), c.getWidth(), h, withAlpha(Color.WHITE, dark ? 25 : 90)));
-        g.setStroke(new BasicStroke(live ? 1.6f : 1.2f));
+        // specular: a hot highlight from the top-left, like light hitting a curved surface
+        Graphics2D spec = (Graphics2D) g.create();
+        spec.clip(body);
+        spec.setPaint(new RadialGradientPaint(new Point2D.Float(w * 0.22f, h * -0.05f), w * 0.75f, new float[]{0f, 1f},
+                new Color[]{withAlpha(Color.WHITE, dark ? 150 : 230), withAlpha(Color.WHITE, 0)}));
+        spec.fill(body);
+        spec.dispose();
+        // rim: a bright edge, fading toward the bottom-right (orange when live)
+        g.setStroke(new BasicStroke(live ? 1.6f : 1.3f));
+        g.setPaint(live ? LIVE : new GradientPaint(0, 0, withAlpha(Color.WHITE, dark ? 255 : 255), w, h, withAlpha(Color.WHITE, dark ? 30 : 110)));
         g.draw(body);
+        // depth: a faint dark line just inside the edge, darker at the bottom
+        if (!live) {
+            g.setStroke(new BasicStroke(1f));
+            g.setPaint(new GradientPaint(0, 0, new Color(0, 0, 0, 0), 0, h, new Color(0, 0, 0, dark ? 70 : 28)));
+            g.draw(inner);
+        }
         g.dispose();
     }
 
