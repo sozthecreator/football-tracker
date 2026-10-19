@@ -127,9 +127,10 @@ public final class Main {
         page.setBackground(Ui.BG);
         frame.setContentPane(new Ui.Centered(page, 1500));
 
-        Pill test = new Pill("Test", null, null, Ui.ACCENT, Ui.ACCENT, 13);
-        test.setIcon(new Ui.Glyph("flask", 15));
+        Pill test = new Pill("Test", Ui.ACCENT, null, null, Color.WHITE, 13);
+        test.setIcon(new Ui.Glyph("flask", 15, Color.WHITE));
         test.setIconTextGap(6);
+        test.setBorder(javax.swing.BorderFactory.createEmptyBorder(9, 16, 9, 18));
         test.setToolTipText("Click: fake goals (sound + notification). Hold or right-click: debug menu (Ctrl+D)");
         test.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
         Timer hold = new Timer(700, e -> showDebug());
@@ -160,12 +161,19 @@ public final class Main {
         head.add(titles, BorderLayout.CENTER);
         JPanel testBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
         testBox.setOpaque(false);
-        Pill gear = new Pill("", null, null, Ui.ACCENT, Ui.ACCENT, 13);
-        gear.setIcon(new Ui.Glyph("gear", 16));
+        // round icon-only settings button: same height as the pills beside it
+        Pill gear = new Pill("", Ui.SURFACE, null, Ui.STROKE, Ui.TEXT, 13);
+        gear.setIcon(new Ui.Glyph("gear", 18, Ui.ACCENT));
+        gear.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        gear.setPreferredSize(new Dimension(36, 36));
         gear.setToolTipText("Settings");
+        gear.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
         Ui.click(gear, () -> SettingsDialog.show(this, frame));
         if (!Feed.supportUrl().isEmpty()) { // only shown once a support page is configured
-            Pill support = new Pill("♥ Support", null, null, Ui.LIVE, Ui.LIVE, 13);
+            Pill support = new Pill("Support", Ui.SURFACE, null, Ui.STROKE, Ui.TEXT, 13);
+            support.setIcon(new Ui.Glyph("heart", 15, Ui.LIVE));
+            support.setIconTextGap(6);
+            support.setBorder(javax.swing.BorderFactory.createEmptyBorder(9, 14, 9, 16));
             Ui.click(support, () -> browse(Feed.supportUrl()));
             testBox.add(support);
             testBox.add(javax.swing.Box.createHorizontalStrut(8));
@@ -182,9 +190,8 @@ public final class Main {
         top.add(chips, BorderLayout.CENTER);
         page.add(top, BorderLayout.NORTH);
 
-        scroll.setBorder(null);
+        Ui.styleScroll(scroll);
         scroll.getViewport().setBackground(Ui.BG);
-        scroll.getVerticalScrollBar().setUnitIncrement(24);
         page.add(scroll, BorderLayout.CENTER);
 
         JPanel bar = new JPanel(new GridLayout(1, 4));
@@ -692,8 +699,7 @@ public final class Main {
         head.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 16));
         d.add(head, BorderLayout.NORTH);
         JScrollPane sp = new JScrollPane(col, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        sp.setBorder(null);
-        sp.getVerticalScrollBar().setUnitIncrement(24);
+        Ui.styleScroll(sp);
         d.add(sp, BorderLayout.CENTER);
         d.setSize(460, 720);
         d.setLocationRelativeTo(frame);

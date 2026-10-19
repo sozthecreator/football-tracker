@@ -38,8 +38,7 @@ final class SettingsDialog {
         col.setBackground(Ui.BG);
         col.setBorder(BorderFactory.createEmptyBorder(16, 20, 20, 20));
         JScrollPane sp = new JScrollPane(col, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        sp.setBorder(null);
-        sp.getVerticalScrollBar().setUnitIncrement(24);
+        Ui.styleScroll(sp);
         dialog.add(sp);
         dialog.setSize(460, 700);
         dialog.setLocationRelativeTo(frame);
