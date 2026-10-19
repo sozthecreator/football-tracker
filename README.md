@@ -10,7 +10,7 @@ Get the latest version from the [Releases page](https://github.com/sozthecreator
 |---|---|---|
 | Android | `football-tracker.apk` | Allow installs from this source when Android asks. |
 | Windows | `football-tracker-<version>.msi` | Installer with Start menu and desktop shortcuts. Java is bundled. |
-| Linux | `football-tracker_<version>-1_amd64.deb` | Installs a Sports menu entry. |
+| Linux | `football-tracker_<version>_amd64.deb` | Installs a Sports menu entry. |
 | Linux, portable | `football-tracker-<version>.zip` | Unzip and run `bin/football-tracker`. |
 
 The apps check for new versions when they open and offer the update.
