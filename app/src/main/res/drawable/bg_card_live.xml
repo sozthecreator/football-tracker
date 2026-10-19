@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Liquid-glass card for a live match: the same glass with an orange rim. -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient android:angle="270" android:startColor="@color/glass_top" android:endColor="@color/glass_bottom" />
-    <stroke android:width="1.5dp" android:color="@color/live" />
-    <corners android:radius="24dp" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:angle="270" android:startColor="@color/glass_top" android:endColor="@color/glass_bottom" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:angle="270" android:startColor="@color/glass_sheen" android:endColor="#00FFFFFF" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#00000000" />
+            <stroke android:width="1.5dp" android:color="@color/live" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</layer-list>
