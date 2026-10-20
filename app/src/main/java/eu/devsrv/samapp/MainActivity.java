@@ -56,16 +56,16 @@ public class MainActivity extends BaseActivity {
     private volatile boolean mineLoaded; // false = My teams needs a full-week scan, true = just refresh today
     private boolean loaded;              // first data for the current view has arrived
     private boolean running;
-    private int themeAtStart;
+    private String paletteAtStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        accent = getColor(R.color.accent);
-        onAccent = getColor(R.color.on_accent);
-        live = getColor(R.color.live);
-        muted = getColor(R.color.muted);
-        text = getColor(R.color.text);
+        accent = Palette.color(this, R.attr.palAccent);
+        onAccent = Palette.color(this, R.attr.palOnAccent);
+        live = Palette.color(this, R.attr.palLive);
+        muted = Palette.color(this, R.attr.palMuted);
+        text = Palette.color(this, R.attr.palText);
         setContentView(R.layout.activity_main);
         status = findViewById(R.id.status);
         title = findViewById(R.id.title);
@@ -113,7 +113,7 @@ public class MainActivity extends BaseActivity {
             support.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.SUPPORT_URL))));
         }
         findViewById(R.id.settings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
-        themeAtStart = Settings.theme(this);
+        paletteAtStart = Settings.palette(this);
         int start = Settings.startTab(this);
         selectTab(start >= 0 ? start : !Football.favourites(this).isEmpty() ? TAB_MINE : TAB_LEAGUES);
     }
@@ -246,7 +246,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (Settings.theme(this) != themeAtStart) { recreate(); return; } // theme changed in Settings
+        if (!Settings.palette(this).equals(paletteAtStart)) { recreate(); return; } // palette changed in Settings
         Updates.check(this, false); // every time the app is opened (20s debounce)
         if (Settings.signedIn(this)) new Thread(() -> {
             try {

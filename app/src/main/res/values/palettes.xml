@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Colour palettes. Every screen reads its colours from these attributes (?attr/palBg etc.), so the chosen
+     palette changes the whole app. Settings picks one; BaseActivity applies it before the screen is drawn. -->
+<resources>
+    <attr name="palBg" format="color" />
+    <attr name="palSurface" format="color" />
+    <attr name="palSurfaceDark" format="color" />
+    <attr name="palSurfaceLive" format="color" />
+    <attr name="palStroke" format="color" />
+    <attr name="palDivider" format="color" />
+    <attr name="palAccent" format="color" />
+    <attr name="palOnAccent" format="color" />
+    <attr name="palPillStart" format="color" />
+    <attr name="palPillEnd" format="color" />
+    <attr name="palLive" format="color" />
+    <attr name="palText" format="color" />
+    <attr name="palMuted" format="color" />
+    <attr name="palHexFill" format="color" />
+    <attr name="palHexStroke" format="color" />
+    <attr name="palGlassTop" format="color" />
+    <attr name="palGlassBottom" format="color" />
+    <attr name="palGlassStroke" format="color" />
+    <attr name="palGlassSheen" format="color" />
+    <attr name="palAmbient1" format="color" />
+    <attr name="palAmbient2" format="color" />
+    <attr name="palAmbient3" format="color" />
+
+    <style name="Palette.Light" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:windowBackground">#F1F4FD</item>
+        <item name="android:statusBarColor">#F1F4FD</item>
+        <item name="android:navigationBarColor">#F1F4FD</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="palBg">#F1F4FD</item>
+        <item name="palSurface">#FFFFFF</item>
+        <item name="palSurfaceDark">#E7EDFC</item>
+        <item name="palSurfaceLive">#FFF4E5</item>
+        <item name="palStroke">#CFD9F5</item>
+        <item name="palDivider">#DCE4F8</item>
+        <item name="palAccent">#2F5BFF</item>
+        <item name="palOnAccent">#FFFFFF</item>
+        <item name="palPillStart">#1B3FE0</item>
+        <item name="palPillEnd">#2F6BFF</item>
+        <item name="palLive">#F08A00</item>
+        <item name="palText">#0B1233</item>
+        <item name="palMuted">#5A6590</item>
+        <item name="palHexFill">#EEF3FF</item>
+        <item name="palHexStroke">#B7C5F2</item>
+        <item name="palGlassTop">#CCFFFFFF</item>
+        <item name="palGlassBottom">#78FFFFFF</item>
+        <item name="palGlassStroke">#FFFFFFFF</item>
+        <item name="palGlassSheen">#B3FFFFFF</item>
+        <item name="palAmbient1">#7A2F5BFF</item>
+        <item name="palAmbient2">#66F08A00</item>
+        <item name="palAmbient3">#669B5CFF</item>
+    </style>
+
+    <style name="Palette.Dark" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">#060A1F</item>
+        <item name="android:statusBarColor">#060A1F</item>
+        <item name="android:navigationBarColor">#060A1F</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="palBg">#060A1F</item>
+        <item name="palSurface">#0F1A4A</item>
+        <item name="palSurfaceDark">#0A1236</item>
+        <item name="palSurfaceLive">#14163F</item>
+        <item name="palStroke">#1E2E70</item>
+        <item name="palDivider">#121B4A</item>
+        <item name="palAccent">#4F7DFF</item>
+        <item name="palOnAccent">#FFFFFF</item>
+        <item name="palPillStart">#1B3FE0</item>
+        <item name="palPillEnd">#2F6BFF</item>
+        <item name="palLive">#FF9A1F</item>
+        <item name="palText">#F4F6FF</item>
+        <item name="palMuted">#8A93C0</item>
+        <item name="palHexFill">#0A1240</item>
+        <item name="palHexStroke">#2A3C8F</item>
+        <item name="palGlassTop">#28FFFFFF</item>
+        <item name="palGlassBottom">#0CFFFFFF</item>
+        <item name="palGlassStroke">#3CFFFFFF</item>
+        <item name="palGlassSheen">#33FFFFFF</item>
+        <item name="palAmbient1">#994F7DFF</item>
+        <item name="palAmbient2">#77FF9A1F</item>
+        <item name="palAmbient3">#779B5CFF</item>
+    </style>
+
+    <style name="Palette.Midnight" parent="Palette.Dark">
+        <item name="android:windowBackground">#05060A</item>
+        <item name="android:statusBarColor">#05060A</item>
+        <item name="android:navigationBarColor">#05060A</item>
+        <item name="palBg">#05060A</item>
+        <item name="palSurface">#14161F</item>
+        <item name="palSurfaceDark">#0B0D14</item>
+        <item name="palSurfaceLive">#101420</item>
+        <item name="palStroke">#2A2F3F</item>
+        <item name="palDivider">#1A1F2C</item>
+        <item name="palAccent">#22D3EE</item>
+        <item name="palOnAccent">#05060A</item>
+        <item name="palPillStart">#0E7490</item>
+        <item name="palPillEnd">#22D3EE</item>
+        <item name="palLive">#FFB020</item>
+        <item name="palText">#F5F7FA</item>
+        <item name="palMuted">#8B93A7</item>
+        <item name="palHexFill">#0E1018</item>
+        <item name="palHexStroke">#2A2F3F</item>
+        <item name="palAmbient1">#9922D3EE</item>
+        <item name="palAmbient2">#77FFB020</item>
+    </style>
+
+    <style name="Palette.Pitch" parent="Palette.Dark">
+        <item name="android:windowBackground">#06140C</item>
+        <item name="android:statusBarColor">#06140C</item>
+        <item name="android:navigationBarColor">#06140C</item>
+        <item name="palBg">#06140C</item>
+        <item name="palSurface">#0E2A1A</item>
+        <item name="palSurfaceDark">#0A1F13</item>
+        <item name="palSurfaceLive">#0F2A1B</item>
+        <item name="palStroke">#1F4D32</item>
+        <item name="palDivider">#17402A</item>
+        <item name="palAccent">#2ECC71</item>
+        <item name="palOnAccent">#06140C</item>
+        <item name="palPillStart">#15803D</item>
+        <item name="palPillEnd">#2ECC71</item>
+        <item name="palLive">#FFB020</item>
+        <item name="palText">#EEFBF3</item>
+        <item name="palMuted">#8FB39C</item>
+        <item name="palHexFill">#0C2317</item>
+        <item name="palHexStroke">#2A6B45</item>
+        <item name="palAmbient1">#992ECC71</item>
+        <item name="palAmbient2">#77FFB020</item>
+    </style>
+
+    <style name="Palette.Sunset" parent="Palette.Dark">
+        <item name="android:windowBackground">#1A0B1F</item>
+        <item name="android:statusBarColor">#1A0B1F</item>
+        <item name="android:navigationBarColor">#1A0B1F</item>
+        <item name="palBg">#1A0B1F</item>
+        <item name="palSurface">#3A1A3F</item>
+        <item name="palSurfaceDark">#240F2A</item>
+        <item name="palSurfaceLive">#3A1A2F</item>
+        <item name="palStroke">#5A2D62</item>
+        <item name="palDivider">#3A1F45</item>
+        <item name="palAccent">#FF7A59</item>
+        <item name="palOnAccent">#1A0B1F</item>
+        <item name="palPillStart">#B83A5E</item>
+        <item name="palPillEnd">#FF7A59</item>
+        <item name="palLive">#FFC24B</item>
+        <item name="palText">#FFF4EE</item>
+        <item name="palMuted">#B896A8</item>
+        <item name="palHexFill">#2A1230</item>
+        <item name="palHexStroke">#6B3470</item>
+        <item name="palAmbient1">#99FF7A59</item>
+        <item name="palAmbient2">#77FFC24B</item>
+    </style>
+</resources>

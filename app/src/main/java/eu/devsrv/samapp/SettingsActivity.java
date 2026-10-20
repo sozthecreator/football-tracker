@@ -24,12 +24,12 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         d = getResources().getDisplayMetrics().density;
-        text = getColor(R.color.text);
-        muted = getColor(R.color.muted);
-        accent = getColor(R.color.accent);
-        onAccent = getColor(R.color.on_accent);
+        text = Palette.color(this, R.attr.palText);
+        muted = Palette.color(this, R.attr.palMuted);
+        accent = Palette.color(this, R.attr.palAccent);
+        onAccent = Palette.color(this, R.attr.palOnAccent);
         ScrollView sv = new ScrollView(this);
-        sv.setBackgroundColor(getColor(R.color.bg));
+        sv.setBackgroundColor(Palette.color(this, R.attr.palBg));
         sv.setOnApplyWindowInsetsListener((v, insets) -> { // targetSdk 37 draws edge-to-edge
             android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
@@ -51,7 +51,7 @@ public class SettingsActivity extends BaseActivity {
         col.addView(title);
 
         section("Appearance");
-        choice(new String[]{"System", "Dark", "Light"}, Settings.theme(this), i -> { Settings.setTheme(this, i); recreate(); });
+        choice(Palette.NAMES, Palette.index(this), i -> { Settings.setPalette(this, Palette.KEYS[i]); recreate(); });
 
         section("Sound and notifications");
         toggle("Goal sounds (cheer when your team scores, boo when they concede)", Settings.sounds(this), v -> Settings.setSounds(this, v));

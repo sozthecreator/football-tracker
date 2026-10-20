@@ -26,7 +26,7 @@
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text"
+                android:textColor="?attr/palText"
                 android:textSize="26sp"
                 android:textStyle="bold" />
 
@@ -34,7 +34,7 @@
                 android:id="@+id/status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/muted"
+                android:textColor="?attr/palMuted"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -46,12 +46,12 @@
             android:background="@drawable/bg_soft_pill"
             android:drawableStart="@drawable/ic_heart"
             android:drawablePadding="6dp"
-            android:drawableTint="@color/live"
+            android:drawableTint="?attr/palLive"
             android:gravity="center_vertical"
             android:paddingStart="12dp"
             android:paddingEnd="14dp"
             android:text="Support"
-            android:textColor="@color/text"
+            android:textColor="?attr/palText"
             android:textSize="13sp"
             android:textStyle="bold"
             android:visibility="gone" />
@@ -66,7 +66,7 @@
             android:padding="10dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_settings"
-            android:tint="@color/accent" />
+            android:tint="?attr/palAccent" />
 
         <TextView
             android:id="@+id/test"
@@ -75,12 +75,12 @@
             android:background="@drawable/bg_pill_on"
             android:drawableStart="@drawable/ic_flask"
             android:drawablePadding="6dp"
-            android:drawableTint="@color/on_accent"
+            android:drawableTint="?attr/palOnAccent"
             android:gravity="center_vertical"
             android:paddingStart="14dp"
             android:paddingEnd="16dp"
             android:text="Test"
-            android:textColor="@color/on_accent"
+            android:textColor="?attr/palOnAccent"
             android:textSize="13sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -126,13 +126,13 @@
         android:layout_weight="1"
         android:gravity="center"
         android:padding="32dp"
-        android:textColor="@color/muted"
+        android:textColor="?attr/palMuted"
         android:textSize="16sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/divider" />
+        android:background="?attr/palDivider" />
 
     <LinearLayout
         android:layout_width="match_parent"

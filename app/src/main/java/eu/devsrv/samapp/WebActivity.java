@@ -21,7 +21,7 @@ public class WebActivity extends BaseActivity {
         web.setWebViewClient(new WebViewClient()); // keep links inside the app
         FrameLayout root = new FrameLayout(this);
         root.addView(web);
-        root.setBackgroundColor(getColor(R.color.bg));
+        root.setBackgroundColor(Palette.color(this, R.attr.palBg));
         root.setOnApplyWindowInsetsListener((v, insets) -> { // targetSdk 37 draws edge-to-edge
             android.graphics.Insets bars = insets.getInsets(android.view.WindowInsets.Type.systemBars());
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom);

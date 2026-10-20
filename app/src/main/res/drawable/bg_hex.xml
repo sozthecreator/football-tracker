@@ -5,8 +5,8 @@
     android:viewportWidth="104"
     android:viewportHeight="60">
     <path
-        android:fillColor="@color/hex_fill"
+        android:fillColor="?attr/palHexFill"
         android:pathData="M18,1 H86 L103,30 L86,59 H18 L1,30 Z"
         android:strokeWidth="1.5"
-        android:strokeColor="@color/hex_stroke" />
+        android:strokeColor="?attr/palHexStroke" />
 </vector>
