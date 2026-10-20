@@ -59,14 +59,15 @@ final class SettingsDialog {
         section("Appearance");
         JPanel theme = row();
         ButtonGroup g = new ButtonGroup();
-        for (String name : new String[]{"Dark", "Light"}) {
-            boolean current = name.equalsIgnoreCase(Ui.dark ? "dark" : "light");
-            JToggleButton b = new JToggleButton(name, current);
+        theme.setLayout(new FlowLayout(FlowLayout.LEFT, 6, 6));
+        for (String[] t : Ui.THEMES) {
+            boolean current = t[0].equals(Ui.themeName);
+            JToggleButton b = new JToggleButton(t[1], current);
             g.add(b);
             b.addActionListener(e -> {
                 if (current) return;
-                Store.setSetting("theme", name.toLowerCase());
-                Ui.applyTheme(name.equals("Dark"));
+                Store.setSetting("theme", t[0]);
+                Ui.applyTheme(t[0]);
                 dialog.dispose();
                 main.restart(); // rebuilds the window with the new colours
             });
