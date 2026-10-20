@@ -52,23 +52,49 @@ final class Ui {
     static Color BG, SURFACE, SURFACE_DARK, STROKE, ACCENT, LIVE, TEXT, MUTED, PILL_A, PILL_B, ROW, HEX_FILL, HEX_STROKE;
     static boolean dark = true;
 
-    static { applyTheme(true); }
+    static { applyTheme("dark"); }
 
-    /** Switches the palette; the window is rebuilt afterwards (see Main.restart). */
-    static void applyTheme(boolean darkMode) {
-        dark = darkMode;
+    /** Theme keys (stored in settings) and the names shown in Settings. */
+    static final String[][] THEMES = {{"dark", "Dark"}, {"light", "Light"}, {"midnight", "Midnight"}, {"pitch", "Pitch"}, {"sunset", "Sunset"}};
+    static String themeName = "dark";
+
+    /** Switches the palette; the window is rebuilt afterwards (see Main.restart). Unknown names fall back to dark. */
+    static void applyTheme(String name) {
+        themeName = name;
+        dark = !"light".equals(name);
         backdrop = null; // rebuild the coloured backdrop in the new theme's colours
         blurred = null;
         PILL_A = new Color(0x1B3FE0);
         PILL_B = new Color(0x2F6BFF);
-        if (darkMode) {
-            BG = new Color(0x060A1F); SURFACE = new Color(0x0F1A4A); SURFACE_DARK = new Color(0x0A1236); STROKE = new Color(0x1E2E70);
-            ACCENT = new Color(0x4F7DFF); LIVE = new Color(0xFF9A1F); TEXT = new Color(0xF4F6FF); MUTED = new Color(0x8A93C0);
-            ROW = new Color(0x0A1236); HEX_FILL = new Color(0x0A1240); HEX_STROKE = new Color(0x2A3C8F);
-        } else {
-            BG = new Color(0xF1F4FD); SURFACE = new Color(0xFFFFFF); SURFACE_DARK = new Color(0xE7EDFC); STROKE = new Color(0xCFD9F5);
-            ACCENT = new Color(0x2F5BFF); LIVE = new Color(0xF08A00); TEXT = new Color(0x0B1233); MUTED = new Color(0x5A6590);
-            ROW = new Color(0xFFFFFF); HEX_FILL = new Color(0xEEF3FF); HEX_STROKE = new Color(0xB7C5F2);
+        switch (name) {
+            case "light":
+                BG = new Color(0xF1F4FD); SURFACE = new Color(0xFFFFFF); SURFACE_DARK = new Color(0xE7EDFC); STROKE = new Color(0xCFD9F5);
+                ACCENT = new Color(0x2F5BFF); LIVE = new Color(0xF08A00); TEXT = new Color(0x0B1233); MUTED = new Color(0x5A6590);
+                ROW = new Color(0xFFFFFF); HEX_FILL = new Color(0xEEF3FF); HEX_STROKE = new Color(0xB7C5F2);
+                break;
+            case "midnight": // black with cyan
+                PILL_A = new Color(0x0E7490); PILL_B = new Color(0x22D3EE);
+                BG = new Color(0x05060A); SURFACE = new Color(0x14161F); SURFACE_DARK = new Color(0x0B0D14); STROKE = new Color(0x2A2F3F);
+                ACCENT = new Color(0x22D3EE); LIVE = new Color(0xFFB020); TEXT = new Color(0xF5F7FA); MUTED = new Color(0x8B93A7);
+                ROW = new Color(0x0B0D14); HEX_FILL = new Color(0x0E1018); HEX_STROKE = new Color(0x2A2F3F);
+                break;
+            case "pitch": // deep football-pitch green
+                PILL_A = new Color(0x15803D); PILL_B = new Color(0x2ECC71);
+                BG = new Color(0x06140C); SURFACE = new Color(0x0E2A1A); SURFACE_DARK = new Color(0x0A1F13); STROKE = new Color(0x1F4D32);
+                ACCENT = new Color(0x2ECC71); LIVE = new Color(0xFFB020); TEXT = new Color(0xEEFBF3); MUTED = new Color(0x8FB39C);
+                ROW = new Color(0x0A1F13); HEX_FILL = new Color(0x0C2317); HEX_STROKE = new Color(0x2A6B45);
+                break;
+            case "sunset": // plum with coral and gold
+                PILL_A = new Color(0xB83A5E); PILL_B = new Color(0xFF7A59);
+                BG = new Color(0x1A0B1F); SURFACE = new Color(0x3A1A3F); SURFACE_DARK = new Color(0x240F2A); STROKE = new Color(0x5A2D62);
+                ACCENT = new Color(0xFF7A59); LIVE = new Color(0xFFC24B); TEXT = new Color(0xFFF4EE); MUTED = new Color(0xB896A8);
+                ROW = new Color(0x240F2A); HEX_FILL = new Color(0x2A1230); HEX_STROKE = new Color(0x6B3470);
+                break;
+            default: // dark: deep navy with electric blue
+                themeName = "dark";
+                BG = new Color(0x060A1F); SURFACE = new Color(0x0F1A4A); SURFACE_DARK = new Color(0x0A1236); STROKE = new Color(0x1E2E70);
+                ACCENT = new Color(0x4F7DFF); LIVE = new Color(0xFF9A1F); TEXT = new Color(0xF4F6FF); MUTED = new Color(0x8A93C0);
+                ROW = new Color(0x0A1236); HEX_FILL = new Color(0x0A1240); HEX_STROKE = new Color(0x2A3C8F);
         }
     }
 

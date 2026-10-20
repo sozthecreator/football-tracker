@@ -87,7 +87,7 @@ public final class Main {
             if (k == null || k.isBlank()) System.exit(0);
             Store.setApiKey(k);
         }
-        Ui.applyTheme(!"light".equals(Store.setting("theme", "dark")));
+        Ui.applyTheme(Store.setting("theme", "dark"));
         SwingUtilities.invokeLater(() -> new Main().start());
     }
 
