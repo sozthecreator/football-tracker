@@ -169,12 +169,13 @@ async function handleAccounts(request, env, url) {
 const RESET_HOURS = 1, REQUEST_HOURS = 24;
 
 async function sendMail(env, to, subject, html) {
+  const from = env.MAIL_FROM || "Football Tracker <onboarding@resend.dev>";
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: env.MAIL_FROM || "Football Tracker <onboarding@resend.dev>", to: [to], subject, html }),
+    body: JSON.stringify({ from, to: [to], subject, html }),
   });
-  if (!r.ok) throw new Error(`mail failed: ${r.status} ${await r.text()}`); // Resend says which field it rejected
+  if (!r.ok) throw new Error(`mail failed: ${r.status} ${r.statusText} body=[${await r.text()}] from=[${from}] to=[${to}] keyLength=${(env.RESEND_API_KEY || "").length}`);
 }
 
 function sameText(a, b) {
