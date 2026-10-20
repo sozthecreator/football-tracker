@@ -82,8 +82,8 @@
 
                 <ImageView
                     android:id="@+id/homeLogo"
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="76dp"
+                    android:layout_height="76dp"
                     android:contentDescription="@null" />
 
                 <TextView
@@ -145,8 +145,8 @@
 
                 <ImageView
                     android:id="@+id/awayLogo"
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="76dp"
+                    android:layout_height="76dp"
                     android:contentDescription="@null" />
 
                 <TextView
