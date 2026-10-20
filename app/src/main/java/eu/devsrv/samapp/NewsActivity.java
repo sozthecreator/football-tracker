@@ -38,7 +38,7 @@ public class NewsActivity extends BaseActivity {
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(getColor(R.color.bg));
+        root.setBackgroundColor(Palette.color(this, R.attr.palBg));
         root.setOnApplyWindowInsetsListener((v, insets) -> { // targetSdk 37 draws edge-to-edge
             android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
@@ -47,7 +47,7 @@ public class NewsActivity extends BaseActivity {
 
         TextView title = new TextView(this);
         title.setText(team + " news");
-        title.setTextColor(getColor(R.color.text));
+        title.setTextColor(Palette.color(this, R.attr.palText));
         title.setTextSize(24);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
         title.setPadding((int) (16 * d), (int) (14 * d), (int) (16 * d), 0);
@@ -55,7 +55,7 @@ public class NewsActivity extends BaseActivity {
 
         status = new TextView(this);
         status.setText("Loading…");
-        status.setTextColor(getColor(R.color.muted));
+        status.setTextColor(Palette.color(this, R.attr.palMuted));
         status.setTextSize(12);
         status.setPadding((int) (16 * d), 0, (int) (16 * d), (int) (8 * d));
         root.addView(status);

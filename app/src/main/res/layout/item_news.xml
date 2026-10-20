@@ -19,7 +19,7 @@
             android:id="@+id/headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/text"
+            android:textColor="?attr/palText"
             android:textSize="15sp"
             android:textStyle="bold" />
 
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/muted"
+            android:textColor="?attr/palMuted"
             android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>

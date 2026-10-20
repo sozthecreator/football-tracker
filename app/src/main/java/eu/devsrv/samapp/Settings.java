@@ -2,6 +2,7 @@ package eu.devsrv.samapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 
 /** User settings (Settings screen) and the signed-in account. */
 final class Settings {
@@ -9,8 +10,15 @@ final class Settings {
 
     private static SharedPreferences p(Context c) { return c.getSharedPreferences("settings", Context.MODE_PRIVATE); }
 
-    static int theme(Context c) { return p(c).getInt("theme", SYSTEM); }
-    static void setTheme(Context c, int v) { p(c).edit().putInt("theme", v).apply(); }
+    /** The colour palette key (see Palette). Older builds stored System/Dark/Light; System follows the phone's night mode. */
+    static String palette(Context c) {
+        String saved = p(c).getString("palette", null);
+        if (saved != null) return saved;
+        int t = p(c).getInt("theme", SYSTEM);
+        boolean night = (c.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        return t == LIGHT || (t == SYSTEM && !night) ? "light" : "dark";
+    }
+    static void setPalette(Context c, String key) { p(c).edit().putString("palette", key).apply(); }
 
     static boolean sounds(Context c) { return p(c).getBoolean("sounds", true); }
     static void setSounds(Context c, boolean v) { p(c).edit().putBoolean("sounds", v).apply(); }

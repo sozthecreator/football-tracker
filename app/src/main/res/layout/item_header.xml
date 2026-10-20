@@ -14,7 +14,7 @@
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:text="#"
-        android:textColor="@color/muted"
+        android:textColor="?attr/palMuted"
         android:textSize="11sp" />
 
     <TextView
@@ -23,7 +23,7 @@
         android:layout_marginStart="32dp"
         android:layout_weight="1"
         android:text="TEAM"
-        android:textColor="@color/muted"
+        android:textColor="?attr/palMuted"
         android:textSize="11sp" />
 
     <TextView
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="P"
-        android:textColor="@color/muted"
+        android:textColor="?attr/palMuted"
         android:textSize="11sp" />
 
     <TextView
@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="GF/GA"
-        android:textColor="@color/muted"
+        android:textColor="?attr/palMuted"
         android:textSize="11sp" />
 
     <TextView
@@ -47,6 +47,6 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="PTS"
-        android:textColor="@color/muted"
+        android:textColor="?attr/palMuted"
         android:textSize="11sp" />
 </LinearLayout>

@@ -28,7 +28,7 @@
             android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/muted"
+            android:textColor="?attr/palMuted"
             android:textSize="13sp" />
 
         <ImageView
@@ -50,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="@color/text"
+                android:textColor="?attr/palText"
                 android:textSize="14sp" />
 
             <TextView
@@ -68,7 +68,7 @@
             android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:textColor="@color/muted"
+            android:textColor="?attr/palMuted"
             android:textSize="13sp" />
 
         <TextView
@@ -76,7 +76,7 @@
             android:layout_width="62dp"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:textColor="@color/muted"
+            android:textColor="?attr/palMuted"
             android:textSize="13sp" />
 
         <TextView
@@ -84,7 +84,7 @@
             android:layout_width="38dp"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:textColor="@color/text"
+            android:textColor="?attr/palText"
             android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>

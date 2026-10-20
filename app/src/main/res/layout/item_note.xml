@@ -6,5 +6,5 @@
     android:paddingTop="18dp"
     android:paddingEnd="24dp"
     android:paddingBottom="6dp"
-    android:textColor="@color/muted"
+    android:textColor="?attr/palMuted"
     android:textSize="12sp" />
