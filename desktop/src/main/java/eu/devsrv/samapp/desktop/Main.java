@@ -214,7 +214,19 @@ public final class Main {
             Ui.click(nav[i], () -> selectTab(t));
             bar.add(nav[i]);
         }
-        page.add(bar, BorderLayout.SOUTH);
+        // small bug-report line under the tabs
+        JLabel bugs = Ui.label("Any bugs? Drop a line: footballtrackerbug@gmail.com", 11, false, Ui.MUTED);
+        bugs.setHorizontalAlignment(JLabel.CENTER);
+        bugs.setBorder(BorderFactory.createEmptyBorder(2, 16, 8, 16));
+        bugs.setToolTipText("Email footballtrackerbug@gmail.com");
+        Ui.click(bugs, () -> {
+            try { java.awt.Desktop.getDesktop().mail(URI.create("mailto:footballtrackerbug@gmail.com")); } catch (Exception ignored) { /* no mail app: the address is shown */ }
+        });
+        JPanel south = new JPanel(new BorderLayout());
+        south.setOpaque(false);
+        south.add(bar, BorderLayout.NORTH);
+        south.add(bugs, BorderLayout.SOUTH);
+        page.add(south, BorderLayout.SOUTH);
 
         try {
             frame.setIconImage(javax.imageio.ImageIO.read(Main.class.getResource("/icon.png")));

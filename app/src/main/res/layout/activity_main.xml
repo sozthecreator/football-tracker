@@ -155,4 +155,17 @@
             android:id="@+id/navTable"
             style="@style/NavItem" />
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/palBg"
+        android:gravity="center"
+        android:paddingStart="16dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="Any bugs? Drop a line: footballtrackerbug@gmail.com"
+        android:textColor="?attr/palMuted"
+        android:textSize="11sp" />
 </LinearLayout>
