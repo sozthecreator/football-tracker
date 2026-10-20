@@ -282,7 +282,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/auth/") || url.pathname.startsWith("/admin/") || url.pathname === "/forgot" || url.pathname === "/reset" || url.pathname === "/profile" || url.pathname === "/account") {
-      try { return await handleAccounts(request, env, url); } catch (e) { return reply({ error: "Server error" }, 500); }
+      try { return await handleAccounts(request, env, url); } catch (e) { console.error("account request failed:", e && e.stack ? e.stack : String(e)); return reply({ error: "Server error" }, 500); }
     }
     if (request.method === "GET" && url.pathname === "/logo") {
       const name = url.searchParams.get("name") || "", short = url.searchParams.get("short") || "", comp = url.searchParams.get("comp") || "";
