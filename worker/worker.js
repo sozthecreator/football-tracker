@@ -174,7 +174,7 @@ async function sendMail(env, to, subject, html) {
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: env.MAIL_FROM || "Football Tracker <onboarding@resend.dev>", to: [to], subject, html }),
   });
-  if (!r.ok) throw new Error(`mail failed: ${r.status}`);
+  if (!r.ok) throw new Error(`mail failed: ${r.status} ${await r.text()}`); // Resend says which field it rejected
 }
 
 function sameText(a, b) {
