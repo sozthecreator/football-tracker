@@ -589,7 +589,7 @@ public final class Main {
         JPanel centre = new JPanel();
         centre.setLayout(new BoxLayout(centre, BoxLayout.Y_AXIS));
         centre.setOpaque(false);
-        centre.add(new Ui.Hex(pre ? "VS" : m.hg + " : " + m.ag));
+        centre.add(new Ui.Hex(pre ? "VS" : m.hg + " : " + m.ag, pre ? 14 : 26)); // "VS" is small so the crests stand out
         centre.add(javax.swing.Box.createVerticalStrut(8));
         Pill st = live ? new Pill(m.status.equals("Live") ? "LIVE" : "LIVE " + m.status, Ui.LIVE, null, null, new Color(0x1A1000), 11)
                 : new Pill(m.status, null, null, null, Ui.MUTED, 11);
@@ -610,7 +610,7 @@ public final class Main {
         c.setOpaque(false);
         JLabel crest = new JLabel();
         crest.setAlignmentX(Component.CENTER_ALIGNMENT);
-        Ui.crest(crest, logo, 52);
+        Ui.crest(crest, logo, 76);
         boolean fav = Store.favourites().contains(name);
         JLabel n = Ui.label("<html><div style='text-align:center;width:110px'>" + (fav ? "★ " : "") + name.toUpperCase(Locale.ROOT) + "</div></html>", 12, true, fav ? Ui.ACCENT : Ui.TEXT);
         n.setAlignmentX(Component.CENTER_ALIGNMENT);

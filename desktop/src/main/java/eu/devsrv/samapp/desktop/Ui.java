@@ -488,8 +488,15 @@ final class Ui {
     static final class Hex extends JComponent {
         private final String text;
 
+        private final int size;
+
         Hex(String text) {
+            this(text, 26);
+        }
+
+        Hex(String text, int size) {
             this.text = text;
+            this.size = size;
             setPreferredSize(new Dimension(104, 60));
             setMaximumSize(new Dimension(104, 60));
             setAlignmentX(CENTER_ALIGNMENT);
@@ -506,7 +513,7 @@ final class Ui {
             g.setStroke(new BasicStroke(1.5f));
             g.drawPolygon(p);
             g.setColor(TEXT);
-            g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
+            g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, size));
             FontMetrics fm = g.getFontMetrics();
             g.drawString(text, (getWidth() - fm.stringWidth(text)) / 2, (getHeight() + fm.getAscent() - fm.getDescent()) / 2);
             g.dispose();

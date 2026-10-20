@@ -548,7 +548,9 @@ public class MainActivity extends BaseActivity {
             ((View) v.findViewById(R.id.awayLogo).getParent()).setOnClickListener(x -> toggleTeam(m.away));
             Logos.load(v.findViewById(R.id.homeLogo), m.homeLogo);
             Logos.load(v.findViewById(R.id.awayLogo), m.awayLogo);
-            ((TextView) v.findViewById(R.id.score)).setText(pre ? "VS" : m.hg + " : " + m.ag);
+            TextView score = v.findViewById(R.id.score);
+            score.setText(pre ? "VS" : m.hg + " : " + m.ag);
+            score.setTextSize(pre ? 14 : 26); // "VS" is small so the crests stand out
             TextView follow = v.findViewById(R.id.follow);
             boolean followed = Football.isFollowed(MainActivity.this, m.key());
             follow.setVisibility(m.state.equals("post") ? View.GONE : View.VISIBLE); // nothing to follow once finished
