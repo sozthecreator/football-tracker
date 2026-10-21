@@ -55,13 +55,13 @@ final class Ui {
     static { applyTheme("dark"); }
 
     /** Theme keys (stored in settings) and the names shown in Settings. */
-    static final String[][] THEMES = {{"dark", "Dark"}, {"light", "Light"}, {"midnight", "Midnight"}, {"pitch", "Pitch"}, {"sunset", "Sunset"}};
+    static final String[][] THEMES = {{"dark", "Dark"}, {"light", "Light"}, {"midnight", "Midnight"}, {"pitch", "Pitch"}, {"sunset", "Sunset"}, {"white", "White"}, {"black", "Black"}};
     static String themeName = "dark";
 
     /** Switches the palette; the window is rebuilt afterwards (see Main.restart). Unknown names fall back to dark. */
     static void applyTheme(String name) {
         themeName = name;
-        dark = !"light".equals(name);
+        dark = !"light".equals(name) && !"white".equals(name);
         backdrop = null; // rebuild the coloured backdrop in the new theme's colours
         blurred = null;
         PILL_A = new Color(0x1B3FE0);
@@ -71,6 +71,18 @@ final class Ui {
                 BG = new Color(0xF1F4FD); SURFACE = new Color(0xFFFFFF); SURFACE_DARK = new Color(0xE7EDFC); STROKE = new Color(0xCFD9F5);
                 ACCENT = new Color(0x2F5BFF); LIVE = new Color(0xF08A00); TEXT = new Color(0x0B1233); MUTED = new Color(0x5A6590);
                 ROW = new Color(0xFFFFFF); HEX_FILL = new Color(0xEEF3FF); HEX_STROKE = new Color(0xB7C5F2);
+                break;
+            case "white": // pure white, black accents
+                BG = new Color(0xFFFFFF); SURFACE = new Color(0xFFFFFF); SURFACE_DARK = new Color(0xF2F2F2); STROKE = new Color(0xD9D9D9);
+                ACCENT = new Color(0x000000); LIVE = new Color(0xF08A00); TEXT = new Color(0x000000); MUTED = new Color(0x666666);
+                ROW = new Color(0xFFFFFF); HEX_FILL = new Color(0xF5F5F5); HEX_STROKE = new Color(0xBDBDBD);
+                PILL_A = new Color(0x000000); PILL_B = new Color(0x3A3A3A);
+                break;
+            case "black": // pure black, white accents
+                PILL_A = new Color(0x2A2A2A); PILL_B = new Color(0x4A4A4A);
+                BG = new Color(0x000000); SURFACE = new Color(0x111111); SURFACE_DARK = new Color(0x0A0A0A); STROKE = new Color(0x2A2A2A);
+                ACCENT = new Color(0xFFFFFF); LIVE = new Color(0xFF9A1F); TEXT = new Color(0xFFFFFF); MUTED = new Color(0x9E9E9E);
+                ROW = new Color(0x0A0A0A); HEX_FILL = new Color(0x0A0A0A); HEX_STROKE = new Color(0x333333);
                 break;
             case "midnight": // black with cyan
                 PILL_A = new Color(0x0E7490); PILL_B = new Color(0x22D3EE);

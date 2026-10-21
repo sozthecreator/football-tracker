@@ -5,9 +5,9 @@ import android.util.TypedValue;
 
 /** The colour palettes: each is a style in res/values/palettes.xml. Settings picks one. */
 final class Palette {
-    static final String[] KEYS = {"light", "dark", "midnight", "pitch", "sunset"};
-    static final String[] NAMES = {"Light", "Dark", "Midnight", "Pitch", "Sunset"};
-    private static final int[] STYLES = {R.style.Palette_Light, R.style.Palette_Dark, R.style.Palette_Midnight, R.style.Palette_Pitch, R.style.Palette_Sunset};
+    static final String[] KEYS = {"light", "dark", "midnight", "pitch", "sunset", "white", "black"};
+    static final String[] NAMES = {"Light", "Dark", "Midnight", "Pitch", "Sunset", "White", "Black"};
+    private static final int[] STYLES = {R.style.Palette_Light, R.style.Palette_Dark, R.style.Palette_Midnight, R.style.Palette_Pitch, R.style.Palette_Sunset, R.style.Palette_White, R.style.Palette_Black};
 
     private Palette() {}
 
