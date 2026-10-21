@@ -153,4 +153,58 @@
         <item name="palAmbient1">#99FF7A59</item>
         <item name="palAmbient2">#77FFC24B</item>
     </style>
+
+    <style name="Palette.White" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="android:statusBarColor">#FFFFFF</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="palBg">#FFFFFF</item>
+        <item name="palSurface">#FFFFFF</item>
+        <item name="palSurfaceDark">#F2F2F2</item>
+        <item name="palSurfaceLive">#FFF4E5</item>
+        <item name="palStroke">#D9D9D9</item>
+        <item name="palDivider">#E6E6E6</item>
+        <item name="palAccent">#000000</item>
+        <item name="palOnAccent">#FFFFFF</item>
+        <item name="palPillStart">#000000</item>
+        <item name="palPillEnd">#3A3A3A</item>
+        <item name="palLive">#F08A00</item>
+        <item name="palText">#000000</item>
+        <item name="palMuted">#666666</item>
+        <item name="palHexFill">#F5F5F5</item>
+        <item name="palHexStroke">#BDBDBD</item>
+        <item name="palGlassTop">#CCFFFFFF</item>
+        <item name="palGlassBottom">#78FFFFFF</item>
+        <item name="palGlassStroke">#FFFFFFFF</item>
+        <item name="palGlassSheen">#B3FFFFFF</item>
+        <item name="palAmbient1">#1A000000</item>
+        <item name="palAmbient2">#1A000000</item>
+        <item name="palAmbient3">#1A000000</item>
+    </style>
+
+    <style name="Palette.Black" parent="Palette.Dark">
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="palBg">#000000</item>
+        <item name="palSurface">#111111</item>
+        <item name="palSurfaceDark">#0A0A0A</item>
+        <item name="palSurfaceLive">#1A1410</item>
+        <item name="palStroke">#2A2A2A</item>
+        <item name="palDivider">#1C1C1C</item>
+        <item name="palAccent">#FFFFFF</item>
+        <item name="palOnAccent">#000000</item>
+        <item name="palPillStart">#2A2A2A</item>
+        <item name="palPillEnd">#4A4A4A</item>
+        <item name="palLive">#FF9A1F</item>
+        <item name="palText">#FFFFFF</item>
+        <item name="palMuted">#9E9E9E</item>
+        <item name="palHexFill">#0A0A0A</item>
+        <item name="palHexStroke">#333333</item>
+        <item name="palAmbient1">#1AFFFFFF</item>
+        <item name="palAmbient2">#1AFFFFFF</item>
+        <item name="palAmbient3">#1AFFFFFF</item>
+    </style>
 </resources>
