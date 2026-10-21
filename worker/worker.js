@@ -100,8 +100,6 @@ async function handleAccounts(request, env, url) {
     const username = String(body.username || "").trim().toLowerCase(), password = String(body.password || "");
     if (!/^[a-z0-9_]{3,20}$/.test(username)) return reply({ error: "Username: 3-20 letters, numbers or _" }, 400);
     if (password.length < 8 || password.length > 128) return reply({ error: "Password must be 8-128 characters" }, 400);
-    const email = String(body.email || "").trim().toLowerCase();
-    if (path === "/auth/register" && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) return reply({ error: "Enter a valid email address" }, 400);
     const ip = request.headers.get("CF-Connecting-IP") || "unknown", keys = [`u:${username}`, `ip:${ip}`];
     for (const k of keys) if (await blocked(env, k)) return reply({ error: "Too many attempts. Try again in 15 minutes." }, 429);
 
@@ -109,8 +107,8 @@ async function handleAccounts(request, env, url) {
       if (await env.DB.prepare("SELECT 1 FROM users WHERE username = ?").bind(username).first()) return reply({ error: "That username is taken" }, 409);
       await noteFailure(env, `ip:${ip}`); // counts sign-ups per address too, so one address can't mass-create accounts
       const salt = randomHex(16);
-      await env.DB.prepare("INSERT INTO users (username, salt, hash, iterations, created, email) VALUES (?, ?, ?, ?, ?, ?)")
-        .bind(username, salt, await hashPassword(password, salt, ITERATIONS), ITERATIONS, Date.now(), email).run();
+      await env.DB.prepare("INSERT INTO users (username, salt, hash, iterations, created) VALUES (?, ?, ?, ?, ?)")
+        .bind(username, salt, await hashPassword(password, salt, ITERATIONS), ITERATIONS, Date.now()).run();
       return reply({ token: await newToken(env, username), username });
     }
     const u = await env.DB.prepare("SELECT salt, hash, iterations FROM users WHERE username = ?").bind(username).first();
@@ -121,17 +119,6 @@ async function handleAccounts(request, env, url) {
     }
     await env.DB.prepare("DELETE FROM attempts WHERE key = ?").bind(keys[0]).run();
     return reply({ token: await newToken(env, username), username });
-  }
-
-  // password reset (no login needed): the user asks, you approve by email, and they set their own password from a one-time link
-  if (request.method === "POST" && path === "/auth/forgot") return forgot(request, env, url);
-  if (request.method === "POST" && path === "/auth/reset") return resetPassword(request, env);
-  if (request.method === "GET" && path === "/admin/approve") return adminDecide(env, url, true);
-  if (request.method === "GET" && path === "/admin/deny") return adminDecide(env, url, false);
-  if (request.method === "GET" && path === "/forgot") return page("Forgot password", forgotForm());
-  if (request.method === "GET" && path === "/reset") {
-    const t = url.searchParams.get("token") || "";
-    return page("Choose a new password", resetForm(/^[0-9a-f]{64}$/.test(t) ? t : ""));
   }
 
   const me = await whoAmI(request, env);
@@ -164,124 +151,10 @@ async function handleAccounts(request, env, url) {
   return reply({ error: "Not found" }, 404);
 }
 
-// ---- password reset helpers
-
-const RESET_HOURS = 1, REQUEST_HOURS = 24;
-
-async function sendMail(env, to, subject, html) {
-  const r = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: env.MAIL_FROM || "Football Tracker <onboarding@resend.dev>", to: [to], subject, html }),
-  });
-  if (!r.ok) throw new Error(`mail failed: ${r.status}`);
-}
-
-function sameText(a, b) {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
-
-function page(title, body, status = 200) {
-  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{font-family:system-ui,sans-serif;background:#F1F4FD;color:#0B1233;margin:0;padding:24px}main{max-width:420px;margin:24px auto;background:#fff;border-radius:20px;padding:24px;box-shadow:0 8px 30px rgba(11,18,51,.08)}h1{font-size:22px;margin:0 0 12px}label{display:block;font-size:13px;margin:14px 0 6px;color:#5A6590}input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #CFD9F5;border-radius:12px;font-size:16px}button{margin-top:18px;width:100%;padding:12px;border:0;border-radius:12px;background:#2F5BFF;color:#fff;font-size:16px;font-weight:600}p.msg{color:#5A6590;font-size:14px}</style></head><body><main><h1>${title}</h1>${body}</main></body></html>`;
-  return new Response(html, { status, headers: { "Content-Type": "text/html; charset=utf-8" } });
-}
-
-function forgotForm() {
-  return `<p class="msg">Enter your username. The owner of the account will be asked to approve a reset, and you'll get an email with a link to choose a new password.</p>
-<label for="u">Username</label><input id="u" autocomplete="username">
-<button id="go">Ask for a reset</button><p id="out" class="msg"></p>
-<script>
-document.getElementById("go").onclick = async () => {
-  const r = await fetch("/auth/forgot", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: document.getElementById("u").value }) });
-  const j = await r.json().catch(() => ({}));
-  document.getElementById("out").textContent = j.message || j.error || "Something went wrong.";
-};
-</script>`;
-}
-
-function resetForm(token) {
-  return `<p class="msg">Choose a new password (8 to 128 characters). You'll need to sign in again on your devices.</p>
-<label for="p">New password</label><input id="p" type="password" autocomplete="new-password">
-<label for="c">Repeat it</label><input id="c" type="password" autocomplete="new-password">
-<button id="go">Save password</button><p id="out" class="msg"></p>
-<script>
-document.getElementById("go").onclick = async () => {
-  const out = document.getElementById("out");
-  if (document.getElementById("p").value !== document.getElementById("c").value) { out.textContent = "The two passwords don't match."; return; }
-  const r = await fetch("/auth/reset", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: "${token}", password: document.getElementById("p").value }) });
-  const j = await r.json().catch(() => ({}));
-  out.textContent = r.ok ? "Password saved. You can sign in with it now." : (j.error || "Something went wrong.");
-};
-</script>`;
-}
-
-async function forgot(request, env, url) {
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const same = reply({ ok: true, message: "If that account has an email on file, the owner has been asked to approve a reset." });
-  let body;
-  try { body = await request.json(); } catch { return reply({ error: "Bad request" }, 400); }
-  const username = String(body.username || "").trim().toLowerCase();
-  if (!/^[a-z0-9_]{3,20}$/.test(username)) return same;
-  if (await blocked(env, `forgot:${ip}`)) return reply({ error: "Too many requests. Try again in 15 minutes." }, 429);
-  await noteFailure(env, `forgot:${ip}`);
-  const u = await env.DB.prepare("SELECT email FROM users WHERE username = ?").bind(username).first();
-  if (!u || !u.email) return same;
-  const id = randomHex(16), base = `${url.origin}/admin/`, key = encodeURIComponent(env.ADMIN_KEY);
-  await env.DB.prepare("INSERT INTO reset_requests (id, username, created, status) VALUES (?, ?, ?, 'pending')").bind(id, username, Date.now()).run();
-  await sendMail(env, env.ADMIN_EMAIL, `Password reset request: ${username}`,
-    `<p><b>${username}</b> asked for a password reset.</p><p>Email on the account: ${u.email}</p><p>Time: ${new Date().toUTCString()}</p>
-<p><a href="${base}approve?id=${id}&key=${key}">Approve</a> &nbsp; <a href="${base}deny?id=${id}&key=${key}">Deny</a></p>
-<p>Approving emails you a one-time link, valid for one hour, to forward to ${username}. Nobody sees the password.</p>`);
-  return same;
-}
-
-async function adminDecide(env, url, approve) {
-  if (!env.ADMIN_KEY || !sameText(url.searchParams.get("key") || "", env.ADMIN_KEY)) return page("Not allowed", '<p class="msg">This link is not valid.</p>', 403);
-  const id = url.searchParams.get("id") || "";
-  const req = /^[0-9a-f]{32}$/.test(id) ? await env.DB.prepare("SELECT username, created, status FROM reset_requests WHERE id = ?").bind(id).first() : null;
-  if (!req || req.status !== "pending" || Date.now() - req.created > REQUEST_HOURS * 3600_000) return page("Already handled", '<p class="msg">This request was already handled or has expired.</p>', 404);
-  if (!approve) {
-    await env.DB.prepare("UPDATE reset_requests SET status = 'denied' WHERE id = ?").bind(id).run();
-    return page("Denied", `<p class="msg">${req.username}'s reset request was denied.</p>`);
-  }
-  const u = await env.DB.prepare("SELECT email FROM users WHERE username = ?").bind(req.username).first();
-  if (!u) return page("Not found", '<p class="msg">That account no longer exists.</p>', 404);
-  const token = randomHex(32);
-  await env.DB.batch([
-    env.DB.prepare("INSERT INTO resets (hash, username, created, used) VALUES (?, ?, ?, 0)").bind(await sha256(token), req.username, Date.now()),
-    env.DB.prepare("UPDATE reset_requests SET status = 'approved' WHERE id = ?").bind(id),
-  ]);
-  const link = `${url.origin}/reset?token=${token}`;
-  await sendMail(env, env.ADMIN_EMAIL, `Reset link for ${req.username}`,
-    `<p>Forward this link to <b>${req.username}</b> (${u.email}). It works once and expires in one hour:</p><p><a href="${link}">${link}</a></p>`);
-  return page("Approved", `<p class="msg">Approved. The reset link has been emailed to you to forward to ${req.username}.</p>`);
-}
-
-async function resetPassword(request, env) {
-  let body;
-  try { body = await request.json(); } catch { return reply({ error: "Bad request" }, 400); }
-  const token = String(body.token || ""), password = String(body.password || "");
-  if (!/^[0-9a-f]{64}$/.test(token)) return reply({ error: "This link is not valid." }, 400);
-  if (password.length < 8 || password.length > 128) return reply({ error: "Password must be 8-128 characters" }, 400);
-  const hash = await sha256(token);
-  const r = await env.DB.prepare("SELECT username, created, used FROM resets WHERE hash = ?").bind(hash).first();
-  if (!r || r.used || Date.now() - r.created > RESET_HOURS * 3600_000) return reply({ error: "This link has expired or was already used. Ask for a new one." }, 400);
-  const salt = randomHex(16);
-  await env.DB.batch([
-    env.DB.prepare("UPDATE users SET salt = ?, hash = ?, iterations = ? WHERE username = ?").bind(salt, await hashPassword(password, salt, ITERATIONS), ITERATIONS, r.username),
-    env.DB.prepare("UPDATE resets SET used = 1 WHERE hash = ?").bind(hash),
-    env.DB.prepare("DELETE FROM tokens WHERE username = ?").bind(r.username), // signs out every device
-  ]);
-  return reply({ ok: true });
-}
-
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (url.pathname.startsWith("/auth/") || url.pathname.startsWith("/admin/") || url.pathname === "/forgot" || url.pathname === "/reset" || url.pathname === "/profile" || url.pathname === "/account") {
+    if (url.pathname.startsWith("/auth/") || url.pathname === "/profile" || url.pathname === "/account") {
       try { return await handleAccounts(request, env, url); } catch (e) { console.error("account request failed:", e && e.stack ? e.stack : String(e)); return reply({ error: "Server error" }, 500); }
     }
     if (request.method === "GET" && url.pathname === "/logo") {
