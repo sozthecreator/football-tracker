@@ -31,7 +31,8 @@ final class Feed {
             {"PL", "Premier League", "premier-league"}, {"ELC", "Championship", "championship"},
             {"PD", "La Liga", "spanish-la-liga"}, {"BL1", "Bundesliga", "german-bundesliga"},
             {"SA", "Serie A", "italian-serie-a"}, {"FL1", "Ligue 1", "french-ligue-one"},
-            {"CL", "Champions League", "champions-league"}, {"DED", "Eredivisie", "dutch-eredivisie"},
+            {"CL", "Champions League", "champions-league"}, {"EL", "Europa League", "europa-league"},
+            {"UECL", "Conference League", "europa-conference-league"}, {"DED", "Eredivisie", "dutch-eredivisie"},
             {"PPL", "Primeira Liga", "portuguese-primeira-liga"}, {"BSA", "Brasileirão", "brazilian-league"},
     };
     static final long DAY = 86_400_000L;
@@ -101,7 +102,7 @@ final class Feed {
                 z.add(new Zone(1, 4, BLUE, "Copa Libertadores")); z.add(new Zone(5, 6, ORANGE, "Libertadores qualifying"));
                 z.add(new Zone(7, 12, GREEN, "Copa Sudamericana")); z.add(new Zone(17, 20, RED, "Relegation"));
                 break;
-            case "CL":
+            case "CL": case "EL": case "UECL":
                 z.add(new Zone(1, 8, GREEN, "Round of 16")); z.add(new Zone(9, 24, TEAL, "Knockout play-offs")); z.add(new Zone(25, 36, RED, "Eliminated"));
                 break;
             default:

@@ -9,7 +9,11 @@ const TTL_MATCHES = 10;   // seconds: live scores are at most 10s old
 const TTL_STANDINGS = 300;
 // Team badges. football-data's own image host is unreliable, so badges come from ESPN's logo CDN, matched by team name.
 const ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer";
-const ESPN_LEAGUE = { PL: "eng.1", ELC: "eng.2", PD: "esp.1", BL1: "ger.1", SA: "ita.1", FL1: "fra.1", CL: "uefa.champions", DED: "ned.1", PPL: "por.1", BSA: "bra.1" };
+const ESPN_V2 = "https://site.api.espn.com/apis/v2/sports/soccer";
+// Europa and Conference League are not on the football-data.org key, so they are read from ESPN and reshaped to football-data's format.
+const ESPN_ONLY = { EL: "uefa.europa", UECL: "uefa.europa.conf" };
+const ESPN_LEAGUE = { PL: "eng.1", ELC: "eng.2", PD: "esp.1", BL1: "ger.1", SA: "ita.1", FL1: "fra.1", CL: "uefa.champions", DED: "ned.1", PPL: "por.1", BSA: "bra.1", ...ESPN_ONLY };
+const DAY = 86_400_000;
 const ALIAS = { koln: "cologne", praha: "prague", hsv: "hamburg", hamburger: "hamburg" }; // football-data spellings ESPN writes differently
 const STOP = new Set(["pae", "fc", "afc", "cf", "ac", "sc", "fk", "cd", "ud", "sv", "rc", "us", "as", "ssc", "de", "the", "club", "football", "calcio", "1899", "1900", "04", "05", "96", "1"]);
 
@@ -40,6 +44,84 @@ async function espnTeams(code, ctx) {
   }
   const data = await res.json();
   return ((data.sports?.[0]?.leagues?.[0]?.teams) || []).map((t) => t.team);
+}
+
+// GET an ESPN URL, cached at the edge for ttl seconds. Returns the parsed JSON, or null if ESPN fails.
+async function espnJson(url, ttl, ctx) {
+  const key = new Request(url);
+  const hit = await caches.default.match(key);
+  if (hit) return hit.json();
+  const up = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!up.ok) return null;
+  const body = await up.text();
+  ctx.waitUntil(caches.default.put(key, new Response(body, { headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${ttl}` } })));
+  return JSON.parse(body);
+}
+
+const NAMED_STATUS = { STATUS_HALFTIME: "PAUSED", STATUS_POSTPONED: "POSTPONED", STATUS_CANCELED: "CANCELLED", STATUS_ABANDONED: "SUSPENDED" };
+// One ESPN scoreboard event, in the shape football-data.org uses for a match.
+function espnMatch(ev, code) {
+  const comp = ev.competitions[0], t = ev.status.type;
+  const side = (homeAway) => {
+    const c = comp.competitors.find((x) => x.homeAway === homeAway);
+    return { shortName: c.team.shortDisplayName || "", name: c.team.displayName || "", crest: c.team.logos?.[0]?.href || "", score: c.score };
+  };
+  const home = side("home"), away = side("away");
+  const started = t.state === "in" || t.state === "post";
+  return {
+    id: Number(ev.id),
+    utcDate: new Date(ev.date).toISOString().replace(/\.\d{3}Z$/, "Z"),
+    status: NAMED_STATUS[t.name] || (t.state === "in" ? "IN_PLAY" : t.state === "post" ? "FINISHED" : "SCHEDULED"),
+    minute: t.state === "in" ? parseInt(ev.status.displayClock, 10) : null,
+    score: { fullTime: { home: started ? Number(home.score) : null, away: started ? Number(away.score) : null } },
+    homeTeam: { shortName: home.shortName, name: home.name, crest: home.crest },
+    awayTeam: { shortName: away.shortName, name: away.name, crest: away.crest },
+    competition: { code },
+  };
+}
+
+// Matches for a date range. ESPN takes one day per request, so each day is fetched (and cached) separately.
+// Other competitions in the same request still come from football-data.org, and both are merged into one reply.
+async function espnMatches(url, env, ctx) {
+  const requested = url.searchParams.get("competitions").split(",").filter(Boolean);
+  const from = Date.parse(url.searchParams.get("dateFrom")), to = Date.parse(url.searchParams.get("dateTo"));
+  const found = new Map();
+  for (const code of requested.filter((c) => ESPN_ONLY[c])) {
+    for (let day = from; day <= to && day - from < 10 * DAY; day += DAY) {
+      const ymd = new Date(day).toISOString().slice(0, 10).replaceAll("-", "");
+      const data = await espnJson(`${ESPN}/${ESPN_ONLY[code]}/scoreboard?dates=${ymd}`, 10, ctx);
+      for (const ev of data?.events || []) found.set(`${code}|${ev.id}`, espnMatch(ev, code));
+    }
+  }
+  const others = requested.filter((c) => !ESPN_ONLY[c]);
+  if (others.length) {
+    const params = new URLSearchParams({ dateFrom: url.searchParams.get("dateFrom"), dateTo: url.searchParams.get("dateTo"), competitions: others.join(",") });
+    const upstreamUrl = `${UPSTREAM}/v4/matches?${params}`;
+    const cacheKey = new Request(upstreamUrl);
+    let upstream = await caches.default.match(cacheKey);
+    if (!upstream) {
+      const fresh = await fetch(upstreamUrl, { headers: { "X-Auth-Token": env.FOOTBALL_DATA_KEY } });
+      upstream = new Response(fresh.body, { status: fresh.status, headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${fresh.ok ? TTL_MATCHES : 5}` } });
+      ctx.waitUntil(caches.default.put(cacheKey, upstream.clone()));
+    }
+    if (!upstream.ok) return upstream; // let the app show football-data's error as before
+    for (const m of (await upstream.json()).matches || []) found.set(`${m.competition.code}|${m.id}`, m);
+  }
+  return new Response(JSON.stringify({ matches: [...found.values()] }), { headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${TTL_MATCHES}` } });
+}
+
+// League table for an ESPN-only competition, in football-data's standings format.
+async function espnStandings(code, ctx) {
+  const data = await espnJson(`${ESPN_V2}/${ESPN_ONLY[code]}/standings`, TTL_STANDINGS, ctx);
+  const entries = data?.children?.[0]?.standings?.entries;
+  if (!entries) return reply({ error: "No table for this competition" }, 404);
+  const stat = (e, name) => e.stats.find((s) => s.name === name)?.value ?? 0;
+  const table = entries.map((e, i) => ({
+    position: stat(e, "rank") || i + 1,
+    team: { shortName: e.team.shortDisplayName || "", name: e.team.displayName || "", crest: e.team.logos?.[0]?.href || "" },
+    playedGames: stat(e, "gamesPlayed"), goalsFor: stat(e, "pointsFor"), goalsAgainst: stat(e, "pointsAgainst"), points: stat(e, "points"),
+  })).sort((a, b) => a.position - b.position);
+  return new Response(JSON.stringify({ standings: [{ type: "TOTAL", table }] }), { headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${TTL_STANDINGS}` } });
 }
 
 async function findLogo(name, short, comp, ctx) {
@@ -174,6 +256,10 @@ export default {
     if (request.method !== "GET" || !ALLOWED.test(url.pathname)) {
       return new Response("Not found", { status: 404 });
     }
+
+    const standing = /^\/v4\/competitions\/([A-Z0-9]{2,5})\/standings$/.exec(url.pathname);
+    if (standing && ESPN_ONLY[standing[1]]) return espnStandings(standing[1], ctx);
+    if ((url.searchParams.get("competitions") || "").split(",").some((c) => ESPN_ONLY[c])) return espnMatches(url, env, ctx);
 
     // Rebuild the query with only the allowed parameters, sorted, so equal requests share one cache entry.
     const params = new URLSearchParams();

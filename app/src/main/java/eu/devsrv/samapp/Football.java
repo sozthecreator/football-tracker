@@ -33,12 +33,13 @@ import java.util.concurrent.Executors;
 final class Football {
     // football-data.org v4: free key (10 requests/min), one request covers every league and day in a range
     private static final String API = "https://api.football-data.org/v4";
-    // Free-tier competitions only (others answer 403)
+    // Free-tier competitions from football-data.org (others answer 403). Europa and Conference League come from ESPN via the score server.
     static final String[][] LEAGUES = { // code, name, bbc.co.uk/sport/football/<slug>
             {"PL", "Premier League", "premier-league"}, {"ELC", "Championship", "championship"},
             {"PD", "La Liga", "spanish-la-liga"}, {"BL1", "Bundesliga", "german-bundesliga"},
             {"SA", "Serie A", "italian-serie-a"}, {"FL1", "Ligue 1", "french-ligue-one"},
-            {"CL", "Champions League", "champions-league"}, {"DED", "Eredivisie", "dutch-eredivisie"},
+            {"CL", "Champions League", "champions-league"}, {"EL", "Europa League", "europa-league"},
+            {"UECL", "Conference League", "europa-conference-league"}, {"DED", "Eredivisie", "dutch-eredivisie"},
             {"PPL", "Primeira Liga", "portuguese-primeira-liga"}, {"BSA", "Brasileirão", "brazilian-league"},
     };
     private static final long DAY_MS = 86_400_000L;
@@ -94,7 +95,7 @@ final class Football {
                 z.add(new Zone(1, 4, BLUE, "Copa Libertadores")); z.add(new Zone(5, 6, ORANGE, "Libertadores qualifying"));
                 z.add(new Zone(7, 12, GREEN, "Copa Sudamericana")); z.add(new Zone(17, 20, RED, "Relegation"));
                 break;
-            case "CL":
+            case "CL": case "EL": case "UECL":
                 z.add(new Zone(1, 8, GREEN, "Round of 16")); z.add(new Zone(9, 24, TEAL, "Knockout play-offs")); z.add(new Zone(25, 36, RED, "Eliminated"));
                 break;
             default:
