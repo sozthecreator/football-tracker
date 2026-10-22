@@ -109,7 +109,7 @@ final class SettingsDialog {
                 f.setMaximumSize(new Dimension(300, 28));
                 f.setAlignmentX(Component.LEFT_ALIGNMENT);
             }
-            JLabel ul = Ui.label("Username (letters, numbers, _)", 12, false, Ui.MUTED), pl = Ui.label("Password (8+ characters)", 12, false, Ui.MUTED);
+            JLabel ul = Ui.label("Username (letters, numbers, _)", 12, false, Ui.HINT), pl = Ui.label("Password (8+ characters)", 12, false, Ui.HINT);
             ul.setAlignmentX(Component.LEFT_ALIGNMENT);
             pl.setAlignmentX(Component.LEFT_ALIGNMENT);
             col.add(ul);

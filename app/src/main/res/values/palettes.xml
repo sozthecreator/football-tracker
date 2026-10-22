@@ -158,6 +158,7 @@
         <item name="android:windowBackground">#FFFFFF</item>
         <item name="android:statusBarColor">#FFFFFF</item>
         <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:textColorHint">#B3B3B3</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="palBg">#FFFFFF</item>
@@ -188,6 +189,7 @@
         <item name="android:windowBackground">#000000</item>
         <item name="android:statusBarColor">#000000</item>
         <item name="android:navigationBarColor">#000000</item>
+        <item name="android:textColorHint">#555555</item>
         <item name="palBg">#000000</item>
         <item name="palSurface">#111111</item>
         <item name="palSurfaceDark">#0A0A0A</item>

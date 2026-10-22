@@ -49,7 +49,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 
 /** Palette and the few custom-painted widgets (rounded cards, pills, the hexagon score box, crests). */
 final class Ui {
-    static Color BG, SURFACE, SURFACE_DARK, STROKE, ACCENT, LIVE, TEXT, MUTED, PILL_A, PILL_B, ROW, HEX_FILL, HEX_STROKE;
+    static Color BG, SURFACE, SURFACE_DARK, STROKE, ACCENT, LIVE, TEXT, MUTED, HINT, PILL_A, PILL_B, ROW, HEX_FILL, HEX_STROKE;
     static boolean dark = true;
 
     static { applyTheme("dark"); }
@@ -66,6 +66,7 @@ final class Ui {
         blurred = null;
         PILL_A = new Color(0x1B3FE0);
         PILL_B = new Color(0x2F6BFF);
+        HINT = null; // set by the themes that need their own hint colour; the rest use MUTED
         switch (name) {
             case "light":
                 BG = new Color(0xF1F4FD); SURFACE = new Color(0xFFFFFF); SURFACE_DARK = new Color(0xE7EDFC); STROKE = new Color(0xCFD9F5);
@@ -77,12 +78,14 @@ final class Ui {
                 ACCENT = new Color(0x000000); LIVE = new Color(0xF08A00); TEXT = new Color(0x000000); MUTED = new Color(0x666666);
                 ROW = new Color(0xFFFFFF); HEX_FILL = new Color(0xF5F5F5); HEX_STROKE = new Color(0xBDBDBD);
                 PILL_A = new Color(0x000000); PILL_B = new Color(0x3A3A3A);
+                HINT = new Color(0xB3B3B3);
                 break;
             case "black": // pure black, white accents
                 PILL_A = new Color(0x2A2A2A); PILL_B = new Color(0x4A4A4A);
                 BG = new Color(0x000000); SURFACE = new Color(0x111111); SURFACE_DARK = new Color(0x0A0A0A); STROKE = new Color(0x2A2A2A);
                 ACCENT = new Color(0xFFFFFF); LIVE = new Color(0xFF9A1F); TEXT = new Color(0xFFFFFF); MUTED = new Color(0x9E9E9E);
                 ROW = new Color(0x0A0A0A); HEX_FILL = new Color(0x0A0A0A); HEX_STROKE = new Color(0x333333);
+                HINT = new Color(0x555555);
                 break;
             case "midnight": // black with cyan
                 PILL_A = new Color(0x0E7490); PILL_B = new Color(0x22D3EE);
@@ -108,6 +111,7 @@ final class Ui {
                 ACCENT = new Color(0x4F7DFF); LIVE = new Color(0xFF9A1F); TEXT = new Color(0xF4F6FF); MUTED = new Color(0x8A93C0);
                 ROW = new Color(0x0A1236); HEX_FILL = new Color(0x0A1240); HEX_STROKE = new Color(0x2A3C8F);
         }
+        if (HINT == null) HINT = MUTED;
     }
 
     /** Liquid-glass fill: a light tint in dark mode, a frosted white in light mode. */
